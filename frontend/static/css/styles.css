@@ -484,7 +484,7 @@ footer {
 
 .radio-group .form-check-input {
     margin-right: 8px;
-    margin-top: 0;  /* This fixes the alignment issue */
+    margin-top: 0; 
 }
 
 /* Textarea styling */

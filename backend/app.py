@@ -1,8 +1,42 @@
 from flask import Flask, render_template
+from dotenv import load_dotenv
+import os
+from flask_pymongo import PyMongo
+from flask_login import LoginManager
 
-app = Flask(__name__, 
-           template_folder='../frontend/templates',
-           static_folder='../frontend/static')
+load_dotenv()
+
+mongo = PyMongo()
+
+login_manager = LoginManager() 
+
+def create_app():
+    app = Flask(__name__,
+                template_folder='../frontend/templates',
+                static_folder='../frontend/static')
+
+    app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+    if not app.config['MONGO_URI']:
+        raise ValueError("MONGO_URI not found in environment variables")
+    
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+   
+    mongo.init_app(app)
+    login_manager.init_app(app)
+
+  
+    from api.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/api')
+
+
+    return app
+
+app = create_app()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return mongo.db.users.find_one({'_id': user_id})
 
 @app.route('/')
 def home():
@@ -32,7 +66,7 @@ def swipe():
     }
     return render_template('swipe.html', user=user)
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['GET'])
 def signup():
     return render_template('signup.html')
 
