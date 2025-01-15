@@ -18,8 +18,23 @@ def profile():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+        return render_template('login.html')
+
+@app.route('/swipe')
+def swipe():
+    user = {
+        'name': 'John Pork',
+        'image_url': '/static/images/John_pork.webp',
+        'age': 25,
+        'divergence': 'Autism',
+        'bio': 'I am a software engineer and I love to code.',
+        'interests': 'Reading, Writing, Coding'
+    }
+    return render_template('swipe.html', user=user)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 

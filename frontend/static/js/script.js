@@ -56,7 +56,58 @@ async function handleConversationAccelerator() {
     }
 }
 
+async function loadNextUser(){
+    fetch('/api/swipe/next')
+    .then(response => response.json())
+    .then(data => {
+        const userCard = document.getElementById('user-card');
+        userCard.innerHTML = `
+        <img src="${data.image_url}" alt="${data.name}" class="user-image">
+        <div class="user-details">
+            <h2>${data.name}</h2>
+            <p>${data.bio}</p>
+            <p><strong>Interests:</strong> ${data.interests}</p>
+        </div>
+        `;
+    });
+}
+
 document.getElementById('send-btn')?.addEventListener('click', sendMessage);
+document.getElementById('like-btn')?.addEventListener('click', () => {
+    fetch('/api/swipe/like', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userID: currentUserId}),
+
+    }).then(data => {
+        if (data.match){
+            alert('You have a new match! Check your chats.')
+        }
+        loadNextUser();
+    });
+});
+
+document.getElementById('dislike-btn')?.addEventListener('click', () => {
+    fetch('/api/swipe/dislike', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userID: currentUserId}),
+
+    }).then(() => {
+        loadNextUser();
+    });
+});
+
+
+
+document.getElementById('dislike-btn')?.addEventListener('click', () => {
+    fetch('/api/swipe/dislike', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    });
+});
+
+
 window.addEventListener('load', () => {
     if (document.querySelector('.profile-container')) fetchUserProfile();
     if (document.querySelector('.chat-container')) fetchChatHistory();

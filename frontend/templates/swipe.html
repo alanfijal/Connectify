@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Swipe - Connectify{% endblock %}
+
+{% block content %}
+<section class="swipe-container">
+    <h1>Find Connections</h1>
+    <div class="card-container">
+        <div class="card" id="user-card">
+            <img src="{{ user.image_url }}" alt="{{ user.name }}" class="user-image">
+            <div class="user-details">
+                <h2>{{ user.name }}</h2>
+                <p>{{ user.bio }}</p>
+                <p>{{ user.age }}</p>
+                <p>{{ user.divergence }}</p>
+                <p><strong>Interests:</strong> {{ user.interests }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="swipe-actions">
+        <button id="dislike-btn" class="btn dislike"><i class="fas fa-times"></i></button>
+        <button id="like-btn" class="btn like"><i class="fas fa-heart"></i></button>
+    </div>
+</section>
+{% endblock %}
