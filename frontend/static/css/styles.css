@@ -408,3 +408,99 @@ footer {
 .slide-out {
     animation: slideOut 0.5s ease forwards;
 }
+
+/* Multiple Select Styles */
+.form-select[multiple] {
+    min-height: 150px;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.form-select[multiple]:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select[multiple] option {
+    padding: 10px;
+    margin: 2px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.form-select[multiple] option:checked {
+    background: linear-gradient(to right, #007bff, #0056b3) !important;
+    color: white;
+    font-weight: 500;
+}
+
+.form-select[multiple] option:hover {
+    background-color: #e9ecef;
+}
+
+/* Style for the divergence section label */
+#divergence_section label {
+    color: #495057;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* Add a subtle animation when the divergence section appears */
+#divergence_section {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#divergence_section[style*="display: block"] {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Radio button group styling */
+.radio-group {
+    margin-top: 8px;
+}
+
+.radio-group .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    margin-right: 150px;
+}
+
+.radio-group .form-check-input {
+    margin-right: 8px;
+    margin-top: 0;  /* This fixes the alignment issue */
+}
+
+/* Textarea styling */
+.login-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.login-form textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

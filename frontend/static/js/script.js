@@ -107,6 +107,25 @@ document.getElementById('dislike-btn')?.addEventListener('click', () => {
     });
 });
 
+// Signup form functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[name="is_neurotypical"]');
+    const divergenceSection = document.getElementById('divergence_section');
+
+    if (radioButtons.length) {  // Only run if we're on the signup page
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'no') {
+                    divergenceSection.style.display = 'block';
+                    document.getElementById('divergence').required = true;
+                } else {
+                    divergenceSection.style.display = 'none';
+                    document.getElementById('divergence').required = false;
+                }
+            });
+        });
+    }
+});
 
 window.addEventListener('load', () => {
     if (document.querySelector('.profile-container')) fetchUserProfile();
