@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Connectify{% endblock %}
+
+{% block content %}
+<section class="profile-container">
+    <h1>Your Profile</h1>
+    <div class="profile-details">
+        <p>Loading...</p>
+    </div>
+    <div class="profile-actions">
+        <button class="btn" onclick="editProfile()">Edit Profile</button>
+        <button class="btn" onclick="deleteProfile()">Delete Profile</button>
+    </div>
+</section>
+{% endblock %}

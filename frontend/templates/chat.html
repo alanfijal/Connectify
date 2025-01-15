@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Connectify{% endblock %}
+
+{% block content %}
+<section class="chat-container">
+    <h1>Chat with your Matches</h1>
+    <div class="chat-window">
+        <div id="messages" class="messages">
+            <!-- Messages will be dynamically loaded here -->
+        </div>
+        <div class="message-input">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
+        <div class="chat-tools">
+            <button id="ai-assistant-btn">Summon AI Assistant</button>
+            <button id="conversation-accelerator-btn">Accelerate Conversation</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

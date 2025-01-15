@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Connectify{% endblock %}
+
+{% block content %}
+<section class="home-container">
+    <h1>Welcome to the Connectify</h1>
+    <p>This app connects neurotypical and neurodivergent individuals to raise awareness and foster meaningful conversations.</p>
+    <div class="actions">
+        <a href="{{ url_for('chat') }}" class="btn">Start Chatting</a>
+        <a href="{{ url_for('profile') }}" class="btn">View Profile</a>
+    </div>
+</section>
+{% endblock %}
