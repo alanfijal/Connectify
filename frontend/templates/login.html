@@ -5,7 +5,7 @@
 {% block content %}
 <section class="login-container">
     <h1>Login</h1>
-    <form action="/login" method="POST" class="login-form">
+    <form action="/api/login" method="POST" class="login-form">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -16,6 +16,6 @@
         </div>
         <button type="submit" class="btn">Login</button>
     </form>
-    <p>Don't have an account? <a href="/signup">Sign up here</a>.</p>
+    <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign up here</a></p>
 </section>
 {% endblock %}

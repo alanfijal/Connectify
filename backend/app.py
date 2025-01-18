@@ -3,40 +3,45 @@ from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
 from flask_login import LoginManager
+from azure.storage.blob import BlobServiceClient
+import uuid
 
 load_dotenv()
 
 mongo = PyMongo()
-
-login_manager = LoginManager() 
+login_manager = LoginManager()
 
 def create_app():
+
     app = Flask(__name__,
                 template_folder='../frontend/templates',
                 static_folder='../frontend/static')
 
     app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+    app.config["MONGO_DBNAME"] = "userinfo"
     if not app.config['MONGO_URI']:
         raise ValueError("MONGO_URI not found in environment variables")
     
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config['AZURE_STORAGE_CONNECTION_STRING'] = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    app.config['AZURE_CONTAINER_NAME'] = os.getenv('AZURE_CONTAINER_NAME')
 
-   
     mongo.init_app(app)
     login_manager.init_app(app)
-
-  
-    from api.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/api')
-
-
+    app.mongo = mongo
+    
+    with app.app_context():
+        from api.auth import auth_bp
+        app.register_blueprint(auth_bp, url_prefix='/api')
+    
     return app
 
 app = create_app()
 
 @login_manager.user_loader
 def load_user(user_id):
-    return mongo.db.users.find_one({'_id': user_id})
+    from models.user import User
+    return User.find_by_id(user_id)
 
 @app.route('/')
 def home():
@@ -50,9 +55,6 @@ def chat():
 def profile():
     return render_template('profile.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-        return render_template('login.html')
 
 @app.route('/swipe')
 def swipe():
@@ -66,9 +68,34 @@ def swipe():
     }
     return render_template('swipe.html', user=user)
 
-@app.route('/signup', methods=['GET'])
-def signup():
-    return render_template('signup.html')
+@app.route('/test-db')
+def test_db():
+    try:
+        collections = mongo.db.list_collection_names()
+        return f"Connected! Collections: {collections}"
+    except Exception as e:
+        return f"Database connection error: {str(e)}"
+
+@app.route('/test-blob')
+def test_blob():
+    try:
+        connection_string = app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = app.config['AZURE_CONTAINER_NAME']
+
+        if not connection_string:
+            return "AZURE_STORAGE_CONNECTION_STRING is not set", 400
+
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        container_client = blob_service_client.get_container_client(container_name)
+
+        blob_list = container_client.list_blobs()
+        blob_names = [blob.name for blob in blob_list]
+
+        return f"Connected to container: {container_name}. Blob found: {blob_names}"
+
+    except Exception as e:
+        return f"Error connecting to blob: {e}", 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

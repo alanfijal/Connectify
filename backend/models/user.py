@@ -1,57 +1,43 @@
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
-from pymongo import MongoClient
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from flask import current_app
+from werkzeug.security import generate_password_hash, check_password_hash
 
 bcrypt = Bcrypt()
-mongo = MongoClient(os.getenv('MONGO_URI'))
-database = mongo[os.getenv('DATABASE_NAME')]
-collection = database[os.getenv('COLLECTION_NAME')]
 
 class User(UserMixin):
-    def __init__(self, user_data):
-        self.id = str(user_data['_id'])
-        self.username = user_data['username']
-        self.email = user_data['email']
-        self.password = user_data['password']
-        self.is_neurotypical = user_data['is_neurotypical']
-        self.neurodivergences = user_data['neurodivergences']
-        self.age = user_data['age']
-        self.bio = user_data['bio']
-        self.interests = user_data['interests']
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def check_password(self, password):
-        return bcrypt.check_password_hash(self.password, password)
+        return check_password_hash(self.password, password)
+    
+    def get_id(self):
+        return str(self._id)
 
     @staticmethod
     def find_by_username(username):
-        user_data = mongo.db.users.find_one({'username': username})
-        if user_data:
-            return User(user_data)
-        return None
+        user_data = current_app.mongo.db.users.find_one({'username': username})
+        return User(**user_data) if user_data else None
 
     @staticmethod
     def find_by_email(email):
-        user_data = mongo.db.users.find_one({'email': email})
-        if user_data:
-            return User(user_data)
-        return None
+        user_data = current_app.mongo.db.users.find_one({'email': email})
+        return User(**user_data) if user_data else None
 
     @staticmethod
-    def create_user(username, email, password, is_neurotypical, neurodivergences, age, bio, interests):
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user_data = {
-            'username': username,
-            'email': email,
-            'password': hashed_password,
-            'is_neurotypical': is_neurotypical,
-            'neurodivergences': neurodivergences,
-            'age': age,
-            'bio': bio,
-            'interests': interests
-        }
-        mongo.db.users.insert_one(user_data)
-        return User.find_by_username(username)
+    def find_by_id(user_id):
+        user_data = current_app.mongo.db.users.find_one({'_id': user_id})
+        return User(**user_data) if user_data else None
+
+    @staticmethod
+    def create_user(**kwargs):
+        if 'username' in kwargs:
+            kwargs['user'] = kwargs['username']
+
+        kwargs['password'] = generate_password_hash(kwargs['password'])
+        
+        result = current_app.mongo.db.users.insert_one(kwargs)
+        kwargs['_id'] = result.inserted_id 
+        return User(**kwargs)  

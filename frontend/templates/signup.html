@@ -6,7 +6,7 @@
         <div class="col-md-6">
             <div class="login-container">
                 <h1>Sign Up</h1>
-                <form method="POST" action="{{ url_for('auth.signup') }}" class="login-form">
+                <form method="POST" action="{{ url_for('auth.signup') }}" class="login-form" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" id="username" name="username" required>
@@ -35,6 +35,20 @@
                         <label for="interests">Interests (comma separated)</label>
                         <input type="text" id="interests" name="interests" required>
                     </div>
+                    <div class="form-group file-input-group">
+                        <label for="profile_image">Profile Image</label>
+                        <div class="file-upload">
+                            <input type="file" id="profile_image" name="profile_image" accept="image/*" required>
+                            <div class="file-upload-label">
+                                <div class="file-upload-icon">📁</div>
+                                <span>Drag and drop an image or click to select</span>
+                            </div>
+                            <div class="file-preview">
+                                <img id="image-preview" src="#" alt="Preview">
+                                <div class="file-name"></div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>Are you neurotypical?</label>
                         <div class="radio-group">
@@ -59,7 +73,7 @@
                     </div>
                     <button type="submit">Sign Up</button>
                 </form>
-                <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
             </div>
         </div>
     </div>

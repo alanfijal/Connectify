@@ -107,12 +107,12 @@ document.getElementById('dislike-btn')?.addEventListener('click', () => {
     });
 });
 
-// Signup form functionality
+
 document.addEventListener('DOMContentLoaded', function() {
     const radioButtons = document.querySelectorAll('input[name="is_neurotypical"]');
     const divergenceSection = document.getElementById('divergence_section');
 
-    if (radioButtons.length) {  // Only run if we're on the signup page
+    if (radioButtons.length) {  
         radioButtons.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'no') {
@@ -124,6 +124,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+    }
+});
+
+// File upload preview
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('profile_image');
+    const filePreview = document.querySelector('.file-preview');
+    const imagePreview = document.getElementById('image-preview');
+    const fileName = document.querySelector('.file-name');
+    const fileUpload = document.querySelector('.file-upload');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    filePreview.style.display = 'block';
+                    fileName.textContent = file.name;
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            fileUpload.classList.add('border-primary');
+        }
+
+        function unhighlight(e) {
+            fileUpload.classList.remove('border-primary');
+        }
+
+        fileUpload.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            fileInput.files = dt.files;
+            
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    filePreview.style.display = 'block';
+                    fileName.textContent = file.name;
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        }
     }
 });
 
