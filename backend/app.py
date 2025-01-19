@@ -38,8 +38,12 @@ def create_app():
     with app.app_context():
         from api.auth import auth_bp
         from api.profile import profile_bp
+        from api.chat import chat_bp
+        from api.match import match_bp
         app.register_blueprint(auth_bp, url_prefix='/api')
         app.register_blueprint(profile_bp, url_prefix='/api')
+        app.register_blueprint(chat_bp, url_prefix='/api')
+        app.register_blueprint(match_bp, url_prefix='/api') 
     
     return app
 

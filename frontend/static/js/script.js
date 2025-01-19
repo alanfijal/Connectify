@@ -8,7 +8,6 @@ async function fetchUserProfile() {
     const data = await response.json();
     console.log('Profile data:', data);
 
-    // Update profile image and details
     const profileImage = document.getElementById('profile-image');
     if (profileImage) {
         profileImage.src = data.profile_image_url || '/static/images/default-profile.png';
@@ -26,7 +25,6 @@ async function fetchUserProfile() {
         ${!data.is_neurotypical ? `<p><strong>Neurodivergences: </strong>${(data.neurodivergences || []).join(', ')}</p>` : ''}
         <p><strong>Interests: </strong>${(data.interests || []).join(', ')}</p>`;
 
-    // Store the current data for the edit form
     window.currentProfileData = data;
 }
 
@@ -145,29 +143,42 @@ async function handleConversationAccelerator() {
 
 
 async function loadNextUser() {
-    fetch('/api/swipe/next')
-        .then(response => response.json())
-        .then(data => {
+    try {
+        const response = await fetch('/api/swipe/next');
+        const data = await response.json();
+        if (response.ok) {
+            window.currentUserId = data._id;
             const userCard = document.getElementById('user-card');
             userCard.innerHTML = `
                 <img src="${data.image_url}" alt="${data.name}" class="user-image">
                 <div class="user-details">
                     <h2>${data.name}</h2>
                     <p>${data.bio}</p>
-                    <p><strong>Interests:</strong> ${data.interests}</p>
+                    <p><strong>Interests:</strong> ${data.interests.join(', ')}</p>
                 </div>
             `;
-        });
+        } else {
+            const userCard = document.getElementById('user-card');
+            userCard.innerHTML = '<p>No more users to show</p>';
+        }
+    } catch (error) {
+        console.error('Error loading next user:', error);
+    }
 }
 
 
 document.getElementById('send-btn')?.addEventListener('click', sendMessage);
 
 document.getElementById('like-btn')?.addEventListener('click', () => {
+    if (!window.currentUserId) {
+        console.error('No user ID available');
+        return;
+    }
+
     fetch('/api/swipe/like', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userID: currentUserId })
+        body: JSON.stringify({ userID: window.currentUserId })
     })
     .then(res => res.json())
     .then(data => {
@@ -175,18 +186,23 @@ document.getElementById('like-btn')?.addEventListener('click', () => {
             alert('You have a new match! Check your chats.');
         }
         loadNextUser();
-    });
+    })
+    .catch(error => console.error('Error liking user:', error));
 });
 
 document.getElementById('dislike-btn')?.addEventListener('click', () => {
+    if (!window.currentUserId) {
+        console.error('No user ID available');
+        return;
+    }
+
     fetch('/api/swipe/dislike', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ userID: currentUserId })
+        body: JSON.stringify({ userID: window.currentUserId })
     })
-    .then(() => {
-        loadNextUser();
-    });
+    .then(() => loadNextUser())
+    .catch(error => console.error('Error disliking user:', error));
 });
 
 
@@ -287,21 +303,22 @@ window.addEventListener('load', () => {
 
     document.getElementById('ai-assistant-btn')?.addEventListener('click', handleAIAssistant);
     document.getElementById('conversation-accelerator-btn')?.addEventListener('click', handleConversationAccelerator);
+
+    if (document.querySelector('.swipe-container')) {
+        loadNextUser();  // Load the first user when the swipe page loads
+    }
 });
 
-// Add these new functions for edit functionality
 function showEditForm() {
     const data = window.currentProfileData;
     if (!data) return;
 
-    // Populate the edit form
     document.getElementById('edit-username').value = data.username;
     document.getElementById('edit-email').value = data.email;
     document.getElementById('edit-age').value = data.age;
     document.getElementById('edit-bio').value = data.bio;
     document.getElementById('edit-interests').value = (data.interests || []).join(', ');
     
-    // Set neurotypical status
     const radioButtons = document.getElementsByName('edit-is-neurotypical');
     for (const radio of radioButtons) {
         if ((radio.value === 'yes' && data.is_neurotypical) || 
@@ -310,7 +327,6 @@ function showEditForm() {
         }
     }
 
-    // Show/hide and set neurodivergences
     const divergenceSection = document.getElementById('edit-divergence-section');
     if (!data.is_neurotypical) {
         divergenceSection.style.display = 'block';
@@ -320,13 +336,10 @@ function showEditForm() {
         });
     }
 
-    // Show the edit form
     document.getElementById('edit-form').style.display = 'block';
 }
 
-// Add event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // ... existing DOMContentLoaded code ...
 
     const editProfileBtn = document.getElementById('edit-profile-btn');
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
@@ -385,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add listener for neurotypical radio buttons in edit form
+   
     const radioButtons = document.getElementsByName('edit-is-neurotypical');
     radioButtons.forEach(radio => {
         radio.addEventListener('change', function() {
