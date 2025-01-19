@@ -2,6 +2,8 @@ from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from bson.objectid import ObjectId
+from bson.errors import InvalidId
 
 bcrypt = Bcrypt()
 
@@ -28,7 +30,12 @@ class User(UserMixin):
 
     @staticmethod
     def find_by_id(user_id):
-        user_data = current_app.mongo.db.users.find_one({'_id': user_id})
+        try:
+            object_id = ObjectId(user_id)
+        except InvalidId:
+            return None
+        
+        user_data = current_app.mongo.db.users.find_one({'_id': object_id})
         return User(**user_data) if user_data else None
 
     @staticmethod

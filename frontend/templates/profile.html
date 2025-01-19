@@ -6,11 +6,54 @@
 <section class="profile-container">
     <h1>Your Profile</h1>
     <div class="profile-details">
+        <div class="profile-image">
+            <img id="profile-image" src="" alt="Profile Image">
+        </div>
         <p>Loading...</p>
     </div>
     <div class="profile-actions">
-        <button class="btn" onclick="editProfile()">Edit Profile</button>
-        <button class="btn" onclick="deleteProfile()">Delete Profile</button>
+        <button class="btn" id="edit-profile-btn">Edit Profile</button>
+        <button class="btn" id="delete-profile-btn">Delete Profile</button>
+    </div>
+
+    <div id="edit-form" style="display: none;">
+        <h2>Edit Profile</h2>
+        <form id="profile-edit-form">
+            <label>Username:</label>
+            <input type="text" id="edit-username" required /><br>
+
+            <label>Email:</label>
+            <input type="email" id="edit-email" required /><br>
+
+            <label>Age:</label>
+            <input type="number" id="edit-age" required /><br>
+
+            <label>Bio:</label>
+            <textarea id="edit-bio" required></textarea><br>
+
+            <div class="neurodivergent-section">
+                <label>Are you neurotypical?</label>
+                <input type="radio" name="edit-is-neurotypical" value="yes" checked> Yes
+                <input type="radio" name="edit-is-neurotypical" value="no"> No
+            </div>
+
+            <div id="edit-divergence-section" style="display: none;">
+                <label>Select your neurodivergences:</label><br>
+                <input type="checkbox" name="edit-divergence[]" value="ADHD"> ADHD<br>
+                <input type="checkbox" name="edit-divergence[]" value="Autism"> Autism<br>
+                <input type="checkbox" name="edit-divergence[]" value="Dyslexia"> Dyslexia<br>
+            </div>
+
+            <label>Interests (comma separated):</label>
+            <input type="text" id="edit-interests" required /><br>
+
+            <button type="submit">Save</button>
+            <button type="button" id="cancel-edit-btn">Cancel</button>
+        </form>
     </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}

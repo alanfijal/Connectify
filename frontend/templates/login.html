@@ -5,7 +5,16 @@
 {% block content %}
 <section class="login-container">
     <h1>Login</h1>
-    <form action="/api/login" method="POST" class="login-form">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('auth.login') }}" method="POST" class="login-form">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>

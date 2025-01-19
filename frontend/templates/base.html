@@ -5,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Connectify{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 <body>
     <header>
         <nav class="navbar">
             <ul>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('swipe') }}">Swipe</a></li>
-                <li><a href="{{ url_for('chat') }}">Chat</a></li>
-                <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('swipe') }}">Swipe</a></li>
+                    <li><a href="{{ url_for('chat') }}">Chat</a></li>
+                    <li><a href="{{ url_for('profile_bp.view_profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>

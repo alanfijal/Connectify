@@ -1,9 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 from azure.storage.blob import BlobServiceClient
+from datetime import timedelta
 import uuid
 
 load_dotenv()
@@ -17,22 +18,28 @@ def create_app():
                 template_folder='../frontend/templates',
                 static_folder='../frontend/static')
 
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['PERNAMENT_SESSION_LIFETIME'] = timedelta(days=7)
     app.config['MONGO_URI'] = os.getenv('MONGO_URI')
     app.config["MONGO_DBNAME"] = "userinfo"
     if not app.config['MONGO_URI']:
         raise ValueError("MONGO_URI not found in environment variables")
     
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    print("Loaded Secret_key:", app.config['SECRET_KEY'])
     app.config['AZURE_STORAGE_CONNECTION_STRING'] = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     app.config['AZURE_CONTAINER_NAME'] = os.getenv('AZURE_CONTAINER_NAME')
 
     mongo.init_app(app)
+    login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     app.mongo = mongo
     
     with app.app_context():
         from api.auth import auth_bp
+        from api.profile import profile_bp
         app.register_blueprint(auth_bp, url_prefix='/api')
+        app.register_blueprint(profile_bp, url_prefix='/api')
     
     return app
 
@@ -43,20 +50,24 @@ def load_user(user_id):
     from models.user import User
     return User.find_by_id(user_id)
 
+
 @app.route('/')
 def home():
-    return render_template('home.html')
+    try:
+        return render_template('home.html')
+    except Exception as e:
+        print(f"Error loading user: {e}")
+        return None 
 
 @app.route('/chat')
+@login_required
 def chat():
     return render_template('chat.html')
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
 
 
 @app.route('/swipe')
+@login_required
 def swipe():
     user = {
         'name': 'John Pork',
