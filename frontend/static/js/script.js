@@ -183,7 +183,7 @@ document.getElementById('like-btn')?.addEventListener('click', () => {
     .then(res => res.json())
     .then(data => {
         if (data.match) {
-            alert('You have a new match! Check your chats.');
+            showMatchModal(data.matchedUser);
         }
         loadNextUser();
     })
@@ -305,7 +305,7 @@ window.addEventListener('load', () => {
     document.getElementById('conversation-accelerator-btn')?.addEventListener('click', handleConversationAccelerator);
 
     if (document.querySelector('.swipe-container')) {
-        loadNextUser();  // Load the first user when the swipe page loads
+        loadNextUser();  
     }
 });
 
@@ -407,3 +407,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function showMatchModal(matchedUser) {
+    const modalHTML = `
+        <div id="match-modal" class="match-modal">
+            <div class="match-modal-content">
+                <div class="match-header">
+                    <h2>🎉 It's a Match! 🎉</h2>
+                    <div class="match-hearts">🔥✨🔥</div>
+                </div>
+                <p>You and ${matchedUser?.username || 'someone'} liked each other!</p>
+                <div class="match-actions">
+                    <button class="btn-primary" onclick="window.location.href='/chat'">Start Chatting</button>
+                    <button class="btn-secondary" onclick="closeMatchModal()">Continue Swiping</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    setTimeout(() => {
+        const modal = document.getElementById('match-modal');
+        modal.classList.add('show');
+    }, 50);
+}
+
+function closeMatchModal() {
+    const modal = document.getElementById('match-modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+}
