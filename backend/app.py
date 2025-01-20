@@ -31,6 +31,10 @@ def create_app():
     app.config['AZURE_CONTAINER_NAME'] = os.getenv('AZURE_CONTAINER_NAME')
 
     mongo.init_app(app)
+    
+    with app.app_context():
+        mongo.db.messages.create_index([("timestamp", 1)])
+    
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     app.mongo = mongo

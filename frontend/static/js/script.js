@@ -87,37 +87,90 @@ async function updateUserProfile() {
 
 
 async function fetchChatHistory() {
-    const response = await fetch('/api/chat-history');
-    const data = await response.json();
-    const messageContainer = document.getElementById('messages');
-    messageContainer.innerHTML = '';
-    data.forEach(message => {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add(
-            'chat-message',
-            message.sender === 'You' ? 'sent' : 'received'
-        );
-        messageElement.textContent = `${message.sender}: ${message.text}`;
-        messageContainer.appendChild(messageElement);
-    });
+    try {
+        const url = currentRecipient 
+            ? `/api/chat/history?recipient_id=${currentRecipient}`
+            : '/api/chat/history';
+            
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch chat history');
+        }
+        const messages = await response.json();
+        
+        const messageContainer = document.getElementById('messages');
+        messageContainer.innerHTML = '';
+        
+        messages.forEach(message => {
+            const messageElement = document.createElement('div');
+            const isOwnMessage = message.sender_id === currentUser;
+            
+            messageElement.classList.add(
+                'chat-message',
+                isOwnMessage ? 'sent' : 'received'
+            );
+            
+            messageElement.innerHTML = `
+                <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
+                <span class="message-text">${message.text}</span>
+                <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
+            `;
+            
+            messageContainer.appendChild(messageElement);
+        });
+        
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    } catch (error) {
+        console.error('Error fetching chat history:', error);
+    }
 }
 
 
 async function sendMessage() {
     const messageInput = document.getElementById('message');
-    const message = messageInput.value;
-    if (message.trim() !== '') {
+    const message = messageInput.value.trim();
+    
+    if (!message) {
+        console.log('No message to send');
+        return;
+    }
+    
+    if (!currentRecipient) {
+        console.log('No recipient selected');
+        return;
+    }
+    
+    try {
         const response = await fetch('/api/send-message', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ message })
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                message: message,
+                recipient_id: currentRecipient
+            })
         });
-        if (response.ok) {
-            messageInput.value = '';
-            fetchChatHistory();
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to send message');
         }
+        
+        // Clear input only if message was sent successfully
+        messageInput.value = '';
+        
+        // Refresh chat immediately
+        await fetchChatHistory();
+        
+    } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
     }
 }
+
 
 
 async function handleAIAssistant() {
@@ -167,7 +220,25 @@ async function loadNextUser() {
 }
 
 
-document.getElementById('send-btn')?.addEventListener('click', sendMessage);
+document.addEventListener('DOMContentLoaded', () => {
+    const messageInput = document.getElementById('message');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                await sendMessage();
+            }
+        });
+    }
+    
+    const sendButton = document.getElementById('send-btn');
+    if (sendButton) {
+        sendButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await sendMessage();
+        });
+    }
+});
 
 document.getElementById('like-btn')?.addEventListener('click', () => {
     if (!window.currentUserId) {
@@ -437,4 +508,81 @@ function closeMatchModal() {
     const modal = document.getElementById('match-modal');
     modal.classList.remove('show');
     setTimeout(() => modal.remove(), 300);
+}
+
+let chatRefreshInterval;
+function startChatRefresh() {
+    chatRefreshInterval = setInterval(fetchChatHistory, 3000);
+}
+
+function stopChatRefresh() {
+    if (chatRefreshInterval) {
+        clearInterval(chatRefreshInterval);
+    }
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        stopChatRefresh();
+    } else {
+        startChatRefresh();
+    }
+});
+
+
+if (document.querySelector('.chat-container')) {
+    currentUser = document.querySelector('meta[name="username"]')?.content;
+    
+    
+    fetchMatches();
+    fetchChatHistory();
+    startChatRefresh();
+    
+    
+    setInterval(fetchMatches, 30000); 
+}
+
+let currentRecipient = null;
+
+async function fetchMatches() {
+    try {
+        const response = await fetch('/api/matches');
+        if (!response.ok) {
+            throw new Error('Failed to fetch matches');
+        }
+        const matches = await response.json();
+        
+        const matchesList = document.getElementById('matches-list');
+        matchesList.innerHTML = '';
+        
+        matches.forEach(match => {
+            const matchElement = document.createElement('div');
+            matchElement.classList.add('match-item');
+            if (match.id === currentRecipient) {
+                matchElement.classList.add('active');
+            }
+            
+            matchElement.innerHTML = `
+                <img src="${match.profile_image}" alt="${match.username}" class="match-avatar">
+                <span class="match-name">${match.username}</span>
+            `;
+            
+            matchElement.addEventListener('click', () => {
+                document.querySelectorAll('.match-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                matchElement.classList.add('active');
+                
+                currentRecipient = match.id;
+                document.getElementById('current-chat-user').textContent = match.username;
+                
+                fetchChatHistory();
+            });
+            
+            matchesList.appendChild(matchElement);
+        });
+    } catch (error) {
+        console.error('Error fetching matches:', error);
+    }
 }
