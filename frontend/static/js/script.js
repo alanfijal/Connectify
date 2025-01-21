@@ -174,13 +174,130 @@ async function sendMessage() {
 
 
 async function handleAIAssistant() {
-    const response = await fetch('/api/ai-assist', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'}
-    });
-    if (response.ok) {
-        fetchChatHistory();
+    if (!currentRecipient) {
+        alert('Please select a conversation first');
+        return;
     }
+
+    try {
+        const response = await showAIPromptDialog();
+    } catch (error) {
+        console.error('Error with AI assistance:', error);
+        alert('Failed to get AI assistance. Please try again.');
+    }
+}
+
+function showAIPromptDialog() {
+    return new Promise((resolve) => {
+        const dialogHTML = `
+            <div id="ai-prompt-dialog" class="modal">
+                <div class="modal-content">
+                    <h3>Ask AI Assistant</h3>
+                    <p>What would you like help with?</p>
+                    <select id="prompt-type">
+                        <option value="suggest">Suggest a response</option>
+                        <option value="explain">Explain communication style</option>
+                        <option value="improve">Improve my last message</option>
+                        <option value="custom">Custom question</option>
+                    </select>
+                    <textarea id="custom-prompt" 
+                        style="display: none;" 
+                        placeholder="Enter your question..."></textarea>
+                    
+                    <div id="ai-response" class="ai-response" style="display: none;">
+                        <h4>AI Assistant's Response:</h4>
+                        <div class="response-content"></div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button id="cancel-prompt" class="btn-secondary">Close</button>
+                        <button id="submit-prompt" class="btn-primary">Ask AI</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', dialogHTML);
+
+        const dialog = document.getElementById('ai-prompt-dialog');
+        const promptType = document.getElementById('prompt-type');
+        const customPrompt = document.getElementById('custom-prompt');
+        const submitBtn = document.getElementById('submit-prompt');
+        const cancelBtn = document.getElementById('cancel-prompt');
+        const aiResponse = document.getElementById('ai-response');
+        const responseContent = aiResponse.querySelector('.response-content');
+
+        // Show/hide custom prompt based on selection
+        promptType.addEventListener('change', () => {
+            customPrompt.style.display = 
+                promptType.value === 'custom' ? 'block' : 'none';
+        });
+
+        submitBtn.addEventListener('click', async () => {
+            let finalPrompt;
+            if (promptType.value === 'custom') {
+                finalPrompt = customPrompt.value.trim();
+                if (!finalPrompt) {
+                    alert('Please enter your question');
+                    return;
+                }
+            } else {
+                const prompts = {
+                    'suggest': 'Please suggest an appropriate response for this conversation.',
+                    'explain': 'Please explain the communication style being used and how I can better adapt to it.',
+                    'improve': 'Please analyze my last message and suggest improvements.'
+                };
+                finalPrompt = prompts[promptType.value];
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch('/api/ai-assist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        recipient_id: currentRecipient,
+                        user_prompt: finalPrompt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get AI assistance');
+                }
+
+                const data = await response.json();
+                
+                // Show the response
+                responseContent.textContent = data.response;
+                aiResponse.style.display = 'block';
+                
+                // Change button text and behavior
+                submitBtn.textContent = 'Ask Another Question';
+                submitBtn.disabled = false;
+                
+                // Clear the custom prompt if it was used
+                if (promptType.value === 'custom') {
+                    customPrompt.value = '';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to get AI assistance. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Ask AI';
+            }
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            dialog.remove();
+            resolve();
+        });
+    });
 }
 
 

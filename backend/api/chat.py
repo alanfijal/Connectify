@@ -10,28 +10,22 @@ chat_bp = Blueprint('chat_bp', __name__)
 @login_required
 def get_chat_history():
     recipient_id = request.args.get('recipient_id')
-    if recipient_id:
-        recipient_obj_id = ObjectId(recipient_id)
-        query = {
-            "$or": [
-                {"$and": [{"sender_id": current_user._id}, {"recipient_id": recipient_obj_id}]},
-                {"$and": [{"sender_id": recipient_obj_id}, {"recipient_id": current_user._id}]}
-            ]
-        }
-    else:
-        query = {
-            "$or": [
-                {"sender_id": current_user._id},
-                {"recipient_id": current_user._id}
-            ]
-        }
+    if not recipient_id:
+        return jsonify([]), 200
+        
+    recipient_obj_id = ObjectId(recipient_id)
+    query = {
+        "$or": [
+            {"$and": [{"sender_id": current_user._id}, {"recipient_id": recipient_obj_id}]},
+            {"$and": [{"sender_id": recipient_obj_id}, {"recipient_id": current_user._id}]}
+        ]
+    }
 
     messages_cursor = current_app.mongo.db.messages.find(
         query, sort=[("timestamp", 1)]
     )
     messages = []
     for msg in messages_cursor:
-        # Get sender's username
         sender = current_app.mongo.db.users.find_one({"_id": msg["sender_id"]})
         sender_name = sender.get("username") if sender else "Unknown"
 
@@ -56,7 +50,6 @@ def send_message():
         message_text = data.get('message')
         recipient_id_str = data.get('recipient_id')
         
-        # Add validation and error messages
         if not message_text:
             return jsonify({"error": "Message text is required"}), 400
         if not recipient_id_str:
@@ -67,7 +60,6 @@ def send_message():
         except:
             return jsonify({"error": "Invalid recipient ID format"}), 400
 
-        # Verify recipient exists
         recipient = current_app.mongo.db.users.find_one({"_id": recipient_id})
         if not recipient:
             return jsonify({"error": "Recipient not found"}), 404
@@ -81,7 +73,6 @@ def send_message():
         
         result = current_app.mongo.db.messages.insert_one(new_msg)
         
-        # Return more complete response
         return jsonify({
             "success": True,
             "message": {
@@ -98,8 +89,46 @@ def send_message():
 @chat_bp.route('/ai-assist', methods=['POST'])
 @login_required
 def ai_assist():
-    pass
+    try:
+        data = request.get_json()
+        recipient_id = data.get('recipient_id')
+        user_prompt = data.get('user_prompt')
+        
+        if not recipient_id or not user_prompt:
+            return jsonify({"error": "Recipient ID and prompt are required"}), 400
+            
+        
+        recipient_obj_id = ObjectId(recipient_id)
+        query = {
+            "$or": [
+                {"$and": [{"sender_id": current_user._id}, {"recipient_id": recipient_obj_id}]},
+                {"$and": [{"sender_id": recipient_obj_id}, {"recipient_id": current_user._id}]}
+            ]
+        }
+        
+        messages_cursor = current_app.mongo.db.messages.find(
+            query, sort=[("timestamp", 1)]
+        )
+        
+        conversation = []
+        for msg in messages_cursor:
+            sender = current_app.mongo.db.users.find_one({"_id": msg["sender_id"]})
+            is_user = msg["sender_id"] == current_user._id
+            conversation.append({
+                "role": "user" if is_user else "other",
+                "content": msg["text"],
+                "sender_name": sender.get("username", "Unknown") if sender else "AI Assistant"
+            })
 
+        from models.agent import Retriever
+        agent = Retriever()
+        ai_response = agent.process_conversation(user_prompt, conversation)
+        
+        return jsonify({"response": ai_response}), 200
+    
+    except Exception as e:
+        print(f"AI assist error: {str(e)}")  # Add logging
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 @chat_bp.route('/accelerate', methods=['POST'])
 @login_required
