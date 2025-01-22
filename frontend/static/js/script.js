@@ -99,27 +99,38 @@ async function fetchChatHistory() {
         const messages = await response.json();
         
         const messageContainer = document.getElementById('messages');
-        messageContainer.innerHTML = '';
         
-        messages.forEach(message => {
-            const messageElement = document.createElement('div');
-            const isOwnMessage = message.sender_id === currentUser;
+        // Compare with existing messages to avoid unnecessary updates
+        const existingMessages = Array.from(messageContainer.children).map(el => ({
+            sender_id: el.classList.contains('sent') ? currentUser : currentRecipient,
+            text: el.querySelector('.message-text').textContent,
+            timestamp: el.querySelector('.message-time').textContent
+        }));
+
+        // Only update if there are new messages
+        if (JSON.stringify(messages) !== JSON.stringify(existingMessages)) {
+            messageContainer.innerHTML = '';
             
-            messageElement.classList.add(
-                'chat-message',
-                isOwnMessage ? 'sent' : 'received'
-            );
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                const isOwnMessage = message.sender_id === currentUser;
+                
+                messageElement.classList.add(
+                    'chat-message',
+                    isOwnMessage ? 'sent' : 'received'
+                );
+                
+                messageElement.innerHTML = `
+                    <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
+                    <span class="message-text">${message.text}</span>
+                    <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
+                `;
+                
+                messageContainer.appendChild(messageElement);
+            });
             
-            messageElement.innerHTML = `
-                <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
-                <span class="message-text">${message.text}</span>
-                <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-            `;
-            
-            messageContainer.appendChild(messageElement);
-        });
-        
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
     } catch (error) {
         console.error('Error fetching chat history:', error);
     }
@@ -629,7 +640,8 @@ function closeMatchModal() {
 
 let chatRefreshInterval;
 function startChatRefresh() {
-    chatRefreshInterval = setInterval(fetchChatHistory, 3000);
+    // Increase refresh interval to 5 seconds
+    chatRefreshInterval = setInterval(fetchChatHistory, 15000);
 }
 
 function stopChatRefresh() {
@@ -703,3 +715,51 @@ async function fetchMatches() {
         console.error('Error fetching matches:', error);
     }
 }
+
+async function searchArticles() {
+    const searchTerm = document.getElementById('articleSearch').value.toLowerCase();
+    const articlesContainer = document.querySelector('.articles-container');
+    
+    try {
+        const response = await fetch('/api/articles');
+        const articles = await response.json();
+        
+        const filteredArticles = articles.filter(article => 
+            article.title.toLowerCase().includes(searchTerm) ||
+            article.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        );
+        
+        articlesContainer.innerHTML = filteredArticles.length 
+            ? filteredArticles.map(article => `
+                <div class="article-card">
+                    <h3>${article.title}</h3>
+                    <div class="article-tags">
+                        ${article.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <p>${article.excerpt}</p>
+                    <a href="/article/${article.id}" class="read-more">Read More</a>
+                </div>
+            `).join('')
+            : '<div class="article-placeholder"><p>No articles found matching your search.</p></div>';
+            
+    } catch (error) {
+        console.error('Error fetching articles:', error);
+        articlesContainer.innerHTML = '<div class="article-placeholder"><p>Error loading articles. Please try again later.</p></div>';
+    }
+}
+
+// Add event listener for search input
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('articleSearch');
+    if (searchInput) {
+        // Initial load of articles
+        searchArticles();
+        
+        // Add debounced search functionality
+        let timeout;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(searchArticles, 300);
+        });
+    }
+});

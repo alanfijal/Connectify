@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Info - Connectify{% endblock %}
+
+{% block content %}
+<section class="info-container">
+    <h1>Learn about Neurodivergence</h1>
+    
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" id="articleSearch" placeholder="Search articles...">
+            <button type="button" onclick="searchArticles()">Search</button>
+        </div>
+        
+        <div class="articles-container">
+            <div class="article-placeholder">
+                <p>Articles coming soon...</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

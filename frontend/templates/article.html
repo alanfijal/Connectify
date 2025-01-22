@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Connectify{% endblock %}
+
+{% block content %}
+<div class="article-page">
+    <div class="article-header">
+        <h1>{{ article.title }}</h1>
+        <div class="article-meta">
+            <span class="article-author">By {{ article.author }}</span>
+            <span class="article-date">Published on {{ article.published_date }}</span>
+        </div>
+        {% if article.tags %}
+        <div class="article-tags">
+            {% for tag in article.tags %}
+                <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="article-content">
+        {{ article.content | nl2br | safe }}
+    </div>
+    
+    <div class="article-footer">
+        <a href="/info" class="back-button">← Back to Articles</a>
+    </div>
+</div>
+{% endblock %}

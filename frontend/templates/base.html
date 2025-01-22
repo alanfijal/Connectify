@@ -17,6 +17,7 @@
                     <li><a href="{{ url_for('swipe') }}">Swipe</a></li>
                     <li><a href="{{ url_for('chat') }}">Chat</a></li>
                     <li><a href="{{ url_for('profile_bp.view_profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('info') }}">Info</a></li>
                     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                 {% else %}
                     <li><a href="{{ url_for('auth.login') }}">Login</a></li>
@@ -29,7 +30,13 @@
         {% block content %}{% endblock %}
     </main>
     <footer>
-        <p>&copy; 2025 Connectify</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='images/image-1.png') }}" alt="Connectify Logo">
+                <span>Connectify</span>
+            </div>
+            <p>&copy; 2025 Connectify</p>
+        </div>
     </footer>
 </body>
 </html>

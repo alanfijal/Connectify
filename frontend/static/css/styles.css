@@ -1,106 +1,398 @@
-/* General Styles */
-body {
-    font-family: Arial, sans-serif;
+/*******************************************************
+ * 1) GLOBAL & BASE STYLES
+ *******************************************************/
+ body {
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5;
+    background: linear-gradient(to bottom, #f3f4f6, #e0e7ff);
     color: #333;
+    line-height: 1.6;
 }
 
+.alert {
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.alert-info {
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #b8daff;
+}
+
+
+/*******************************************************
+ * 2) KEYFRAMES & ANIMATIONS
+ *******************************************************/
+/* General fadeIn animation used in multiple places */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide down animation for form appearance */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Bounce animation for hearts in match modal */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Card swipe-out animation */
+@keyframes slideOut {
+    to {
+        transform: translateX(100vw) rotate(20deg);
+        opacity: 0;
+    }
+}
+
+
+/*******************************************************
+ * 3) HEADER & NAVIGATION
+ *******************************************************/
+/* Header Styling */
 header {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #007bff, #6610f2);
     color: #fff;
-    padding: 10px 0;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
+/* Navigation Bar */
 .navbar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+    list-style: none;
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 30px;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar ul li {
+    position: relative;
 }
 
 .navbar ul li a {
     color: #fff;
     text-decoration: none;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Cool hover effect */
+.navbar ul li a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.6s ease;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 0;
+}
+
+.navbar ul li a:hover::before {
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .navbar ul li a:hover {
-    background-color: #0056b3;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
+
+/*******************************************************
+ * 4) FOOTER
+ *******************************************************/
 footer {
     text-align: center;
-    padding: 10px 0;
-    background-color: #007bff;
+    padding: 20px 0;
+    background: linear-gradient(135deg, #007bff, #6610f2);
     color: #fff;
     position: fixed;
     width: 100%;
     bottom: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Home Page Styles */
-.home-container {
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-logo img {
+    height: 30px;
+    width: auto;
+    transition: transform 0.3s ease;
+    border-radius: 4px; 
+    padding: 2px;
+}
+
+.footer-logo:hover img {
+    transform: rotate(360deg);
+}
+
+.footer-logo span {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+footer p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding: 15px 0;
+    }
+    
+    .footer-logo img {
+        height: 25px;
+    }
+    
+    .footer-logo span {
+        font-size: 1rem;
+    }
+}
+
+
+/*******************************************************
+ * 5) HOME PAGE - ENHANCED MAGNIFICENCE
+ *******************************************************/
+ 
+ .home-container {
     text-align: center;
-    padding: 50px 20px;
+    padding: 120px 20px;
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    color: white;
+    animation: fadeIn 1s ease-in-out;
 }
 
+/* Stunning Title Styling */
 .home-container h1 {
-    font-size: 2.5rem;
-    color: #007bff;
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ff6b6b, #f8e71c, #58efef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: bounce 1.5s infinite alternate;
 }
 
+/* Beautiful Text Styling */
 .home-container p {
-    margin: 20px 0;
+    font-size: 1.7rem;
+    max-width: 900px;
+    margin: 0 auto 50px;
+    color: #fff;
+    line-height: 1.9;
+    font-weight: 400;
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Call-to-Action Buttons */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+/* Animated Buttons with Glowing Effect */
+.actions .btn {
+    display: inline-block;
+    padding: 18px 50px;
+    color: white;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    border: none;
+    border-radius: 50px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    box-shadow: 0 10px 40px rgba(255, 107, 107, 0.4);
+    transition: all 0.4s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Glowing Effect on Hover */
+.actions .btn:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 50px rgba(255, 107, 107, 0.6);
+    background: linear-gradient(135deg, #ff8e8e, #ff6b6b);
+}
+
+/* Sparkle Effect */
+.actions .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 350%;
+    height: 350%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.6s ease;
+    border-radius: 50%;
+    z-index: 0;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.actions .btn:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Subtle floating effect on buttons */
+.actions .btn {
+    animation: float 3s infinite ease-in-out;
+}
+
+/* Floating Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 80px 20px;
+    }
+
+    .home-container h1 {
+        font-size: 3rem;
+    }
+
+    .home-container p {
+        font-size: 1.4rem;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .actions .btn {
+        padding: 16px 40px;
+        font-size: 1.2rem;
+    }
+}
+
+
+/*******************************************************
+ * 6) CHAT PAGE - ELEVATED STYLES (WITH SEND ICON)
+ *******************************************************/
+
+ .chat-container {
+    display: flex;
+    max-width: 800px;
+    height: calc(100vh - 180px);
+    margin: 70px auto 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Chat Sidebar */
+.chat-sidebar {
+    width: 220px;
+    background: linear-gradient(to bottom, #007bff, #6610f2);
+    padding: 15px;
+    color: white;
+    overflow-y: auto;
+    box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-sidebar h2 {
+    color: white;
+    margin-bottom: 20px;
     font-size: 1.2rem;
 }
 
-.actions .btn {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px 20px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s;
+.no-matches {
+    text-align: center;
+    font-size: 1rem;
+    opacity: 0.7;
 }
 
-.actions .btn:hover {
-    background-color: #0056b3;
-}
-
-/* Chat Page Styles */
-.chat-container {
-    display: flex;
-    max-width: 800px;
-    height: calc(100vh - 100px);
-    margin: 20px auto;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.chat-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    background: #f8f9fa;
-}
-
-.chat-header h1 {
-    font-size: 1.5rem;
-    color: #2c3e50;
-    margin: 0;
-}
-
+/* Chat Main Section */
 .chat-main {
     flex: 1;
     display: flex;
@@ -108,93 +400,142 @@ footer {
     padding: 20px;
 }
 
+/* Chat Header */
+.chat-header {
+    text-align: center;
+    padding: 15px;
+    border-bottom: 2px solid #eee;
+    background: #f8f9fa;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+/* Messages Window */
 .chat-window {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
+/* Messages */
 .messages {
     flex: 1;
-    overflow-y: auto;
     padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
+/* Individual Message */
 .chat-message {
-    margin-bottom: 15px;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
-    max-width: 70%;
+    max-width: 75%;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .chat-message.sent {
-    background-color: #007bff;
-    color: white;
+    background: #007bff;
+    color: #fff;
     margin-left: auto;
+    text-align: right;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message.received {
-    background-color: #f1f1f1;
+    background: #f1f1f1;
+    color: #333;
     margin-right: auto;
 }
 
 .message-sender {
-    font-size: 0.8rem;
-    opacity: 0.8;
+    font-size: 0.9rem;
+    font-weight: bold;
     display: block;
     margin-bottom: 5px;
+    opacity: 0.7;
 }
 
 .message-time {
-    font-size: 0.7rem;
-    opacity: 0.7;
+    font-size: 0.8rem;
+    opacity: 0.6;
     display: block;
     margin-top: 5px;
 }
 
+/* Message Input */
 .message-input {
-    padding: 12px;
-    background: white;
-    border-top: 1px solid #eee;
     display: flex;
-    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-top: 2px solid #eee;
 }
 
 .message-input input {
     flex: 1;
-    padding: 12px 20px;
-    border: 2px solid #e9ecef;
-    border-radius: 25px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease-in-out;
 }
 
+.message-input input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Send button with icon */
 .message-input button {
+    margin-left: 10px;
     padding: 12px 24px;
     background: #007bff;
     color: white;
     border: none;
-    border-radius: 25px;
-    font-weight: 600;
+    border-radius: 50px;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+.message-input button i {
+    font-size: 1.2rem;
+}
+
+.message-input button:hover {
+    background: #0056b3;
+}
+
+/* Chat Tools */
 .chat-tools {
-    padding: 0 20px 20px;
     display: flex;
-    gap: 12px;
     justify-content: center;
+    gap: 15px;
+    padding-top: 10px;
 }
 
 .chat-tools button {
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease-in-out;
 }
 
 #ai-assistant-btn {
@@ -209,9 +550,31 @@ footer {
 
 .chat-tools button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+    }
+
+    .chat-sidebar {
+        width: 100%;
+        text-align: center;
+    }
+
+    .messages {
+        padding: 10px;
+    }
+}
+
+
+
+
+/*******************************************************
+ * 7) PROFILE PAGE
+ *******************************************************/
 .profile-container {
     padding: 40px;
     max-width: 800px;
@@ -291,7 +654,10 @@ footer {
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
 
-/* Edit Form Styles */
+
+/*******************************************************
+ * 8) EDIT FORM (PROFILE EDIT)
+ *******************************************************/
 #edit-form {
     max-width: 600px;
     margin: 30px auto;
@@ -299,6 +665,7 @@ footer {
     background: #f8f9fa;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease-out;
 }
 
 #edit-form h2 {
@@ -398,23 +765,41 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-/* Animation for form appearance */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.radio-group {
+    margin-top: 8px;
 }
 
-#edit-form {
-    animation: slideDown 0.3s ease-out;
+.radio-group .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    margin-right: 150px;
 }
 
-/* Login Page Styles */
+.radio-group .form-check-input {
+    margin-right: 8px;
+    margin-top: 0; 
+}
+
+/* Divergence Section Animation */
+#divergence_section label {
+    color: #495057;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+#divergence_section {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#divergence_section[style*="display: block"] {
+    animation: fadeIn 0.3s ease;
+}
+
+
+/*******************************************************
+ * 9) LOGIN PAGE
+ *******************************************************/
 .login-container {
     max-width: 400px;
     margin: 50px auto;
@@ -489,35 +874,63 @@ input[type="checkbox"] {
     text-decoration: underline;
 }
 
-/* Swipe Page Styles */
-.swipe-container {
-    padding: 20px;
-    max-width: 400px;
-    margin: 0 auto;
-    text-align: center;
+/* Textarea in login form (if needed) */
+.login-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    resize: vertical;
+    min-height: 100px;
 }
 
+.login-form textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+
+/*******************************************************
+ * 10) SWIPE PAGE
+ *******************************************************/
+.swipe-container {
+    padding: 90px 20px 100px;
+    max-width: 450px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Card Container */
 .card-container {
     position: relative;
     height: 500px;
-    margin: 20px auto;
+    margin: 10px auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(to bottom, #ffffff, #f3f4f6);
+    transition: all 0.3s ease-in-out;
 }
 
 .card {
     position: relative;
     height: 100%;
-    background: white;
+    background: #fff;
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
 }
 
+/* User Image */
 .user-image {
     width: 100%;
     height: 400px;
@@ -525,100 +938,93 @@ input[type="checkbox"] {
     transition: transform 0.5s ease;
 }
 
-/* Add hover effect to the image */
 .card:hover .user-image {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
-/* Keep the user details on top of the zoomed image */
+/* User Details */
 .user-details {
-    padding: 15px;
-    background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 0.9) 0%,
-        rgba(0, 0, 0, 0.7) 50%,
-        rgba(0, 0, 0, 0.4) 100%
-    );
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 100%);
     position: absolute;
     bottom: 0;
     width: 100%;
     box-sizing: border-box;
-    max-height: 150px;
+    max-height: 160px;
     z-index: 1;
 }
 
 .user-details h2 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     color: #fff;
-    font-size: 24px;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .user-details p {
-    margin: 5px 0;
-    color: #fff;
-    font-size: 16px;
+    margin: 0;
+    color: #ddd;
+    font-size: 1.1rem;
+    font-weight: 300;
 }
 
+/* Swipe Action Buttons */
 .swipe-actions {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 25px;
     margin-top: 20px;
 }
 
 .swipe-actions button {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-size: 2rem;
+    transition: all 0.3s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.swipe-actions button:hover {
-    transform: scale(1.1);
-}
-
-.dislike {
-    background-color: #ff4b4b;
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
-}
-
-.dislike:hover {
-    background-color: #ff3333;
-    box-shadow: 0 6px 20px rgba(255, 75, 75, 0.4);
-}
-
+/* Like Button */
 .like {
-    background-color: #4CAF50;
-    color: white;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    background: linear-gradient(to right, #28a745, #218838);
+    color: #fff;
+    border: 2px solid #fff;
 }
 
 .like:hover {
-    background-color: #45a049;
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(to right, #218838, #28a745);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
 }
 
-/* Add smooth animation for card transitions */
-@keyframes slideOut {
-    to {
-        transform: translateX(100vw) rotate(20deg);
-        opacity: 0;
-    }
+/* Dislike Button */
+.dislike {
+    background: linear-gradient(to right, #ff4b4b, #ff3333);
+    color: #fff;
+    border: 2px solid #fff;
+}
+
+.dislike:hover {
+    background: linear-gradient(to right, #ff3333, #ff4b4b);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(255, 75, 75, 0.4);
 }
 
 .slide-out {
     animation: slideOut 0.5s ease forwards;
 }
 
-/* Multiple Select Styles */
+
+/*******************************************************
+ * 11) MULTIPLE SELECT
+ *******************************************************/
 .form-select[multiple] {
     min-height: 150px;
     border-radius: 8px;
@@ -652,69 +1058,14 @@ input[type="checkbox"] {
     background-color: #e9ecef;
 }
 
-/* Style for the divergence section label */
-#divergence_section label {
-    color: #495057;
-    font-weight: 500;
-    margin-bottom: 8px;
+.form-group.file-input-group {
+    margin-bottom: 30px;
 }
 
-/* Add a subtle animation when the divergence section appears */
-#divergence_section {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
 
-#divergence_section[style*="display: block"] {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Radio button group styling */
-.radio-group {
-    margin-top: 8px;
-}
-
-.radio-group .form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    margin-right: 150px;
-}
-
-.radio-group .form-check-input {
-    margin-right: 8px;
-    margin-top: 0; 
-}
-
-/* Textarea styling */
-.login-form textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-    resize: vertical;
-    min-height: 100px;
-}
-
-.login-form textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-/* File Upload Styling */
+/*******************************************************
+ * 12) FILE UPLOAD
+ *******************************************************/
 .file-upload {
     position: relative;
     display: flex;
@@ -775,45 +1126,14 @@ input[type="checkbox"] {
     color: #495057;
 }
 
-/* Add this to existing .form-group styles */
 .form-group.file-input-group {
     margin-bottom: 30px;
 }
 
-/* Alert/Flash Message Styles */
-.alert {
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 1rem;
-}
 
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.alert-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-
-.alert-info {
-    background-color: #cce5ff;
-    color: #004085;
-    border: 1px solid #b8daff;
-}
-
-/* Match Modal Styles */
+/*******************************************************
+ * 13) MATCH MODAL
+ *******************************************************/
 .match-modal {
     position: fixed;
     top: 0;
@@ -904,16 +1224,10 @@ input[type="checkbox"] {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
 
-/* Chat Sidebar Styles */
+/*******************************************************
+ * 14) CHAT SIDEBAR
+ *******************************************************/
 .chat-sidebar {
     width: 200px;
     background: #f8f9fa;
@@ -937,14 +1251,18 @@ input[type="checkbox"] {
     cursor: pointer;
     transition: background-color 0.3s;
     margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
 }
 
 .match-item:hover {
-    background-color: #e9ecef;
+    background-color: rgba(255, 255, 255, 1);
 }
 
 .match-item.active {
     background-color: #007bff;
+}
+
+.match-item.active .match-name {
     color: white;
 }
 
@@ -957,9 +1275,14 @@ input[type="checkbox"] {
 }
 
 .match-name {
+    color: #000;
     font-weight: 500;
 }
 
+
+/*******************************************************
+ * 15) PROMPT MODAL (AI/ACCELERATOR)
+ *******************************************************/
 .modal {
     position: fixed;
     top: 0;
@@ -997,7 +1320,9 @@ input[type="checkbox"] {
 }
 
 #custom-prompt {
+    width: 100%;
     min-height: 100px;
+    margin: 10px 0;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -1024,16 +1349,6 @@ input[type="checkbox"] {
     overflow-y: auto;
 }
 
-#custom-prompt {
-    width: 100%;
-    min-height: 100px;
-    margin: 10px 0;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
-}
-
 .modal-content {
     max-width: 600px;
     max-height: 80vh;
@@ -1045,3 +1360,274 @@ input[type="checkbox"] {
     cursor: not-allowed;
 }
 
+
+/*******************************************************
+ * 16) INFO PAGE & ARTICLES
+ *******************************************************/
+.info-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.info-container h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 30px;
+}
+
+/* Search */
+.search-section {
+    margin: 2rem 0;
+}
+
+.search-bar {
+    display: flex;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.search-bar button {
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+/* Articles List Container */
+.articles-container {
+    margin-top: 2rem;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.article-placeholder {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Individual Article Card */
+.article-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.article-card h3 {
+    color: #007bff;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+}
+
+.article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tag {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+.article-card p {
+    color: #6c757d;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.read-more {
+    display: inline-block;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.read-more:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Article Page */
+.article-page {
+    max-width: 800px;
+    margin: 40px auto 80px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.article-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.article-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.article-meta {
+    display: flex;
+    gap: 20px;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.article-author {
+    font-weight: 500;
+}
+
+.article-content {
+    line-height: 1.8;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.article-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.back-button {
+    display: inline-block;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.back-button:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Code blocks or special formatting in articles */
+.article-content pre {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #007bff;
+    padding-left: 20px;
+    margin: 20px 0;
+    color: #495057;
+    font-style: italic;
+}
+
+
+/*******************************************************
+ * 17) RESPONSIVE DESIGN
+ *******************************************************/
+/* General media queries */
+@media (max-width: 768px) {
+    /* NAVBAR */
+    .navbar ul {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .navbar ul li a {
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
+
+    /* HOME PAGE */
+    .home-container h1 {
+        font-size: 2.5rem;
+    }
+    .home-container p {
+        font-size: 1.2rem;
+    }
+    .actions {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* SWIPE CONTAINER */
+    .swipe-container {
+        padding: 80px 15px 60px; /* Adjusted for mobile view */
+    }
+    .card-container {
+        height: 450px;
+    }
+    .swipe-actions {
+        gap: 15px;
+    }
+    .swipe-actions button {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    /* ARTICLE PAGE */
+    .article-page {
+        margin: 20px;
+    }
+    .article-header h1 {
+        font-size: 2rem;
+    }
+    .article-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

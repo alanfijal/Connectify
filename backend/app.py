@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, current_app
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
@@ -6,6 +6,7 @@ from flask_login import LoginManager, login_required
 from azure.storage.blob import BlobServiceClient
 from datetime import timedelta
 import uuid
+from bson.objectid import ObjectId
 
 load_dotenv()
 
@@ -44,10 +45,20 @@ def create_app():
         from api.profile import profile_bp
         from api.chat import chat_bp
         from api.match import match_bp
+        from api.article import article_bp
         app.register_blueprint(auth_bp, url_prefix='/api')
         app.register_blueprint(profile_bp, url_prefix='/api')
         app.register_blueprint(chat_bp, url_prefix='/api')
         app.register_blueprint(match_bp, url_prefix='/api') 
+        app.register_blueprint(article_bp, url_prefix='/api')
+    
+    @app.template_filter('nl2br')
+    def nl2br_filter(text):
+        if not text:
+            return text
+        # Split text into paragraphs and wrap each in <p> tags
+        paragraphs = text.split('\n\n')
+        return ''.join(f'<p>{p.strip()}</p>' for p in paragraphs if p.strip())
     
     return app
 
@@ -72,6 +83,9 @@ def home():
 def chat():
     return render_template('chat.html')
 
+@app.route('/info')
+def info():
+    return render_template('info.html')
 
 
 @app.route('/swipe')
@@ -115,6 +129,29 @@ def test_blob():
     except Exception as e:
         return f"Error connecting to blob: {e}", 500
 
+@app.route('/article/<article_id>')
+def article(article_id):
+    try:
+        response = current_app.mongo.db.articles.find_one({'_id': ObjectId(article_id)})
+        
+        if not response:
+            return "Article not found", 404
+            
+        article = {
+            'id': str(response['_id']),
+            'article_id': response['article_id'],
+            'title': response['title'],
+            'content': response['content'],
+            'tags': response['tags'],
+            'published_date': response['published_date'],
+            'author': response['author']
+        }
+        
+        return render_template('article.html', article=article)
+        
+    except Exception as e:
+        print(f"Error loading article: {e}")
+        return "Article not found", 404
 
 if __name__ == '__main__':
     app.run(debug=True)
