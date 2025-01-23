@@ -1,5 +1,3 @@
-let currentUser = null;
-
 async function fetchUserProfile() {
     const response = await fetch('/api/profile');
     if (!response.ok) {
@@ -90,12 +88,6 @@ async function updateUserProfile() {
 
 async function fetchChatHistory() {
     try {
-        if (!currentUser) {
-            const userMeta = document.querySelector('meta[name="username"]');
-            currentUser = userMeta ? userMeta.content : null;
-            console.log('Current user:', currentUser);
-        }
-
         const url = currentRecipient 
             ? `/api/chat/history?recipient_id=${currentRecipient}`
             : '/api/chat/history';
@@ -105,45 +97,40 @@ async function fetchChatHistory() {
             throw new Error('Failed to fetch chat history');
         }
         const messages = await response.json();
-        console.log('Received messages:', messages);
         
         const messageContainer = document.getElementById('messages');
-        messageContainer.innerHTML = '';
         
-        messages.forEach(message => {
-            console.log('Processing message:', message);
-            console.log('Comparing:', message.sender_id, currentUser);
+        // Compare with existing messages to avoid unnecessary updates
+        const existingMessages = Array.from(messageContainer.children).map(el => ({
+            sender_id: el.classList.contains('sent') ? currentUser : currentRecipient,
+            text: el.querySelector('.message-text').textContent,
+            timestamp: el.querySelector('.message-time').textContent
+        }));
+
+        // Only update if there are new messages
+        if (JSON.stringify(messages) !== JSON.stringify(existingMessages)) {
+            messageContainer.innerHTML = '';
             
-            const messageElement = document.createElement('div');
-            const isOwnMessage = String(message.sender_id) === String(currentUser);
-            
-            messageElement.classList.add(
-                'chat-message',
-                isOwnMessage ? 'sent' : 'received'
-            );
-            
-            messageElement.innerHTML = `
-                <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name}</span>
-                <div class="message-content">
-                    <span class="message-text" data-message-id="${message._id}">${message.text}</span>
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                const isOwnMessage = message.sender_id === currentUser;
+                
+                messageElement.classList.add(
+                    'chat-message',
+                    isOwnMessage ? 'sent' : 'received'
+                );
+                
+                messageElement.innerHTML = `
+                    <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
+                    <span class="message-text">${message.text}</span>
                     <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                    ${isOwnMessage ? `
-                        <div class="message-actions">
-                            <button class="edit-message-btn" onclick="editMessage('${message._id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="delete-message-btn" onclick="deleteMessage('${message._id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
+                `;
+                
+                messageContainer.appendChild(messageElement);
+            });
             
-            messageContainer.appendChild(messageElement);
-        });
-        
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
     } catch (error) {
         console.error('Error fetching chat history:', error);
     }
@@ -154,7 +141,13 @@ async function sendMessage() {
     const messageInput = document.getElementById('message');
     const message = messageInput.value.trim();
     
-    if (!message || !currentRecipient) {
+    if (!message) {
+        console.log('No message to send');
+        return;
+    }
+    
+    if (!currentRecipient) {
+        console.log('No recipient selected');
         return;
     }
     
@@ -177,7 +170,10 @@ async function sendMessage() {
             throw new Error(data.error || 'Failed to send message');
         }
         
+        // Clear input only if message was sent successfully
         messageInput.value = '';
+        
+        // Refresh chat immediately
         await fetchChatHistory();
         
     } catch (error) {
@@ -330,46 +326,29 @@ async function handleConversationAccelerator() {
 async function loadNextUser() {
     try {
         const response = await fetch('/api/swipe/next');
-        if (!response.ok) {
-            if (response.status === 404) {
-                document.querySelector('#user-card').innerHTML = '<p class="no-users">No more users to show!</p>';
-                return;
-            }
-            throw new Error('Failed to fetch next user');
+        const data = await response.json();
+        if (response.ok) {
+            window.currentUserId = data._id;
+            const userCard = document.getElementById('user-card');
+            userCard.innerHTML = `
+                <img src="${data.image_url}" alt="${data.name}" class="user-image">
+                <div class="user-details">
+                    <h2>${data.name}</h2>
+                    <p>${data.bio}</p>
+                    <p><strong>Interests:</strong> ${data.interests.join(', ')}</p>
+                </div>
+            `;
+        } else {
+            const userCard = document.getElementById('user-card');
+            userCard.innerHTML = '<p>No more users to show</p>';
         }
-
-        const user = await response.json();
-        window.currentUserId = user._id;
-
-        const card = document.querySelector('#user-card');
-        card.innerHTML = `
-            <img src="${user.image_url}" alt="${user.name}'s profile" class="user-image">
-            <div class="user-details">
-                <h2 class="user-name">${user.name}</h2>
-                <p class="user-bio">${user.bio}</p>
-                <p class="user-neurotype">
-                    ${user.is_neurotypical ? 'Neurotypical' : 
-                    `Neurodivergent: ${user.neurodivergences?.join(', ') || 'Not specified'}`}
-                </p>
-                <p class="user-interests">
-                    <strong>Interests:</strong> ${user.interests?.join(', ') || 'None listed'}
-                </p>
-            </div>
-        `;
     } catch (error) {
         console.error('Error loading next user:', error);
-        document.querySelector('#user-card').innerHTML = '<p class="error">Error loading user!</p>';
     }
 }
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const userMeta = document.querySelector('meta[name="username"]');
-    if (userMeta) {
-        currentUser = userMeta.content;
-        console.log('Initialized current user:', currentUser);
-    }
-
     const messageInput = document.getElementById('message');
     if (messageInput) {
         messageInput.addEventListener('keypress', async (e) => {
@@ -382,12 +361,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const sendButton = document.getElementById('send-btn');
     if (sendButton) {
-        sendButton.addEventListener('click', sendMessage);
-    }
-
-    if (document.querySelector('.chat-container')) {
-        fetchChatHistory();
-        startChatRefresh();
+        sendButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await sendMessage();
+        });
     }
 });
 
@@ -884,74 +861,168 @@ async function loadChannels() {
 
 async function loadChannel(channelId) {
     try {
-        currentChannel = channelId;
-        console.log('Loading channel:', channelId); // Debug log
-        
         const response = await fetch(`/api/channels/${channelId}`);
         if (!response.ok) throw new Error('Failed to load channel');
         
         const channel = await response.json();
         console.log('Channel data:', channel); // Debug log
-        console.log('Current user ID:', currentUserId); // Debug log
+        currentChannel = channelId;
         
         // Update channel header
         document.getElementById('current-channel').innerHTML = `
             <h1>${channel.name}</h1>
             <p>${channel.description}</p>
         `;
+        
 
-        // Display messages
-        const messageContainer = document.getElementById('channel-messages');
-        console.log('Message container:', messageContainer); // Debug log
         
-        if (!messageContainer) {
-            console.error('Channel messages container not found!');
-            return;
-        }
         
-        messageContainer.innerHTML = '';
-        
-        if (!channel.messages || !Array.isArray(channel.messages)) {
-            console.error('No messages array in channel data');
-            return;
-        }
-        
-        channel.messages.forEach(message => {
-            console.log('Processing message:', message); // Debug log
-            const isOwnMessage = String(message.sender_id) === String(currentUserId);
-            console.log('Is own message:', isOwnMessage); // Debug log
-            
-            const messageElement = document.createElement('div');
-            messageElement.classList.add(
-                'chat-message',
-                isOwnMessage ? 'sent' : 'received'
-            );
-            
-            messageElement.innerHTML = `
-                <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
-                <div class="message-content">
-                    <span class="message-text" data-message-id="${message.id}">${message.text}</span>
-                    <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                    ${isOwnMessage ? `
-                        <div class="message-actions">
-                            <button class="edit-message-btn" onclick="editChannelMessage('${message.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="delete-message-btn" onclick="deleteChannelMessage('${message.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
+        // Update messages
+        const messagesContainer = document.getElementById('channel-messages');
+        if (channel.messages && channel.messages.length > 0) {
+            messagesContainer.innerHTML = channel.messages.map(msg => `
+                <div class="message">
+                    <strong>${msg.sender_name || 'Unknown User'}</strong>
+                    <p>${msg.text}</p>
+                    <span class="timestamp">${new Date(msg.timestamp).toLocaleString()}</span>
                 </div>
-            `;
-            
-            messageContainer.appendChild(messageElement);
-        });
+            `).join('');
+        } else {
+            messagesContainer.innerHTML = '<div class="no-messages">No messages yet</div>';
+        }
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+        // Update members list
+        const membersList = document.getElementById('members-list');
+        if (channel.members && channel.members.length > 0) {
+            membersList.innerHTML = channel.members.map(member => `
+                <div class="member-item">
+                    <img src="${member.profile_image}" alt="${member.username}" class="member-avatar">
+                    <span>${member.username}</span>
+                </div>
+            `).join('');
+        } else {
+            membersList.innerHTML = '<div class="no-members">No members yet</div>';
+        }
+        
+        // Update events list with join/leave functionality and participant view
+        const eventsList = document.getElementById('events-list');
+        if (channel.events && channel.events.length > 0) {
+            eventsList.innerHTML = channel.events.map(event => {
+                // Debug logs
+                console.log('Event:', event.title);
+                console.log('Event participants:', event.participants);
+                console.log('Current user ID:', currentUserId);
+                
+                // Ensure all IDs are strings and check participation
+                const isParticipant = event.participants.some(pid => String(pid) === String(currentUserId));
+                console.log('Is participant:', isParticipant);
+
+                return `
+                    <div class="event-item" data-event-id="${event.id}">
+                        <div class="event-content">
+                            <h4>${event.title}</h4>
+                            <p>${event.description}</p>
+                            <div class="event-details">
+                                <span>Date: ${event.date}</span>
+                                <span>Time: ${event.time}</span>
+                                <span class="participants-count">
+                                    Participants: ${event.participants.length}
+                                </span>
+                            </div>
+                            <div class="event-participants" id="participants-${event.id}" style="display: none;">
+                                <h5>Participants</h5>
+                                <div class="participants-list">Loading...</div>
+                            </div>
+                        </div>
+                        <button class="event-action-btn ${isParticipant ? 'leave' : 'join'}">
+                            ${isParticipant ? 'Leave Event' : 'Join Event'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners for join/leave buttons
+            document.querySelectorAll('.event-action-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const eventId = e.target.closest('.event-item').dataset.eventId;
+                    const isLeaving = e.target.classList.contains('leave');
+                    
+                    try {
+                        const response = await fetch(`/api/channels/${channelId}/events/${eventId}/${isLeaving ? 'leave' : 'join'}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            // Refresh channel to update event participants
+                            loadChannel(channelId);
+                        } else {
+                            const error = await response.json();
+                            throw new Error(error.error || `Failed to ${isLeaving ? 'leave' : 'join'} event`);
+                        }
+                    } catch (error) {
+                        console.error('Error with event action:', error);
+                        alert(error.message || 'Failed to perform action. Please try again.');
+                    }
+                });
+            });
+
+            // Add click listeners for showing/hiding participants
+            document.querySelectorAll('.event-item').forEach(item => {
+                item.addEventListener('click', async (e) => {
+                    if (e.target.classList.contains('event-action-btn')) return;
+                    
+                    const eventId = item.dataset.eventId;
+                    const participantsDiv = document.getElementById(`participants-${eventId}`);
+                    
+                    if (participantsDiv.style.display === 'none') {
+                        try {
+                            const response = await fetch(`/api/channels/${channelId}/events/${eventId}/participants`);
+                            if (response.ok) {
+                                const data = await response.json();
+                                participantsDiv.querySelector('.participants-list').innerHTML = data.participants.length > 0 
+                                    ? data.participants.map(p => `
+                                        <div class="participant">
+                                            <img src="${p.profile_image}" alt="${p.username}" class="participant-avatar">
+                                            <span>${p.username}</span>
+                                        </div>
+                                    `).join('')
+                                    : '<p>No participants yet</p>';
+                            } else {
+                                throw new Error('Failed to load participants');
+                            }
+                        } catch (error) {
+                            console.error('Error loading participants:', error);
+                            participantsDiv.querySelector('.participants-list').innerHTML = 
+                                '<p class="error">Failed to load participants</p>';
+                        }
+                        participantsDiv.style.display = 'block';
+                    } else {
+                        participantsDiv.style.display = 'none';
+                    }
+                });
+            });
+        } else {
+            eventsList.innerHTML = '<div class="no-events">No events scheduled</div>';
+        }
+
+        // Show the channel content
+        document.querySelector('.channel-content').style.display = 'block';
 
     } catch (error) {
         console.error('Error loading channel:', error);
+        document.getElementById('current-channel').innerHTML = `
+            <div class="error-message">
+                <h1>Error Loading Channel</h1>
+                <p>There was a problem loading the channel. Please try again later.</p>
+                <p>Error: ${error.message}</p>
+            </div>
+        `;
+        document.querySelector('.channel-content').style.display = 'none';
     }
 }
 
@@ -974,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
- 
+        // Handle message sending
         const sendButton = document.getElementById('send-channel-msg');
         const messageInput = document.getElementById('channel-message');
         
@@ -995,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (response.ok) {
                     messageInput.value = '';
-                    loadChannel(currentChannel); 
+                    loadChannel(currentChannel); // Refresh channel
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
@@ -1010,12 +1081,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-  
+        // Handle channel creation
         document.getElementById('create-channel-btn').addEventListener('click', () => {
             showCreateChannelModal();
         });
         
-   
+        // Handle event creation
         document.getElementById('create-event-btn').addEventListener('click', () => {
             if (!currentChannel) {
                 alert('Please select a channel first');
@@ -1127,7 +1198,7 @@ function showCreateEventModal() {
     const form = document.getElementById('create-event-form');
     const cancelBtn = document.getElementById('cancel-event');
 
-  
+    // Set minimum date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('event-date').min = today;
 
@@ -1155,7 +1226,7 @@ function showCreateEventModal() {
 
             if (response.ok) {
                 modal.remove();
-                loadChannel(currentChannel); 
+                loadChannel(currentChannel); // Refresh channel to show new event
             } else {
                 const error = await response.json();
                 alert(error.error || 'Failed to create event');
@@ -1171,42 +1242,25 @@ function showCreateEventModal() {
     });
 }
 
+// Add this at the start of your script
+let currentUserId = null;
 
-
-
-function displayChannelMessages(messages) {
-    const messageContainer = document.getElementById('channel-messages');
-    messageContainer.innerHTML = '';
-    
-    messages.forEach(message => {
-        const messageElement = document.createElement('div');
-        const isOwnMessage = message.sender_id === currentUserId;
-        
-        messageElement.classList.add(
-            'chat-message',
-            isOwnMessage ? 'sent' : 'received'
-        );
-        
-        messageElement.innerHTML = `
-            <span class="message-sender">${isOwnMessage ? 'You' : message.sender_name || 'Other'}</span>
-            <div class="message-content">
-                <span class="message-text" data-message-id="${message.id}">${message.text}</span>
-                <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                ${isOwnMessage ? `
-                    <div class="message-actions">
-                        <button class="edit-message-btn" onclick="editChannelMessage('${message.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="delete-message-btn" onclick="deleteChannelMessage('${message.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-        
-        messageContainer.appendChild(messageElement);
-    });
-    
-    messageContainer.scrollTop = messageContainer.scrollHeight;
+// Add this function to get the current user's ID
+async function getCurrentUserId() {
+    try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+            const data = await response.json();
+            currentUserId = String(data.id); // Convert to string
+            console.log('Current user ID:', currentUserId); // Debug
+        }
+    } catch (error) {
+        console.error('Error getting current user:', error);
+    }
 }
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    await getCurrentUserId();
+    // ... rest of your initialization code ...
+});
