@@ -326,24 +326,32 @@ async function handleConversationAccelerator() {
 async function loadNextUser() {
     try {
         const response = await fetch('/api/swipe/next');
-        const data = await response.json();
-        if (response.ok) {
-            window.currentUserId = data._id;
-            const userCard = document.getElementById('user-card');
-            userCard.innerHTML = `
-                <img src="${data.image_url}" alt="${data.name}" class="user-image">
-                <div class="user-details">
-                    <h2>${data.name}</h2>
-                    <p>${data.bio}</p>
-                    <p><strong>Interests:</strong> ${data.interests.join(', ')}</p>
-                </div>
-            `;
-        } else {
-            const userCard = document.getElementById('user-card');
-            userCard.innerHTML = '<p>No more users to show</p>';
+        if (!response.ok) {
+            if (response.status === 404) {
+                document.querySelector('.card-container').innerHTML = '<p class="no-users">No more users to show</p>';
+                return;
+            }
+            throw new Error('Failed to fetch next user');
         }
+
+        const userData = await response.json();
+        window.currentUserId = userData._id;
+
+        const userCard = document.getElementById('user-card');
+        userCard.innerHTML = `
+            <img src="${userData.image_url}" alt="${userData.name}'s profile" class="user-image">
+            <div class="user-details">
+                <h2 class="user-name">${userData.name}</h2>
+                <p class="user-bio">${userData.bio}</p>
+                <p class="user-neurotype">
+                    ${userData.is_neurotypical ? 'Neurotypical' : 'Neurodivergent: ' + userData.neurodivergences.join(', ')}
+                </p>
+                <p class="user-interests">Interests: ${userData.interests.join(', ')}</p>
+            </div>
+        `;
     } catch (error) {
         console.error('Error loading next user:', error);
+        document.querySelector('.card-container').innerHTML = '<p class="error">Error loading user</p>';
     }
 }
 
