@@ -4,12 +4,16 @@
 
 {% block content %}
 <section class="home-container">
-    <h1>Welcome to the Connectify</h1>
+    <h1>Welcome to Connectify</h1>
     <p>This app connects neurotypical and neurodivergent individuals to raise awareness and foster meaningful conversations.</p>
     <div class="actions">
-        <a href="{{ url_for('chat') }}" class="btn">Start Chatting</a>
-        <a href="{{ url_for('profile_bp.view_profile') }}" class="btn">View Profile</a>
-    
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('chat') }}" class="btn">Start Chatting</a>
+            <a href="{{ url_for('profile_bp.view_profile') }}" class="btn">View Profile</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+            <a href="{{ url_for('auth.signup') }}" class="btn">Sign Up</a>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

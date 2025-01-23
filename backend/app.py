@@ -35,6 +35,7 @@ def create_app():
     
     with app.app_context():
         mongo.db.messages.create_index([("timestamp", 1)])
+        mongo.db.channel_messages.create_index([("channel_id", 1), ("created_at", 1)])
     
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
@@ -46,11 +47,14 @@ def create_app():
         from api.chat import chat_bp
         from api.match import match_bp
         from api.article import article_bp
+        from api.channel import channel_bp
         app.register_blueprint(auth_bp, url_prefix='/api')
         app.register_blueprint(profile_bp, url_prefix='/api')
         app.register_blueprint(chat_bp, url_prefix='/api')
         app.register_blueprint(match_bp, url_prefix='/api') 
         app.register_blueprint(article_bp, url_prefix='/api')
+        app.register_blueprint(channel_bp, url_prefix='/api')
+    
     
     @app.template_filter('nl2br')
     def nl2br_filter(text):
@@ -152,6 +156,11 @@ def article(article_id):
     except Exception as e:
         print(f"Error loading article: {e}")
         return "Article not found", 404
+
+@app.route('/channels')
+@login_required
+def channels():
+    return render_template('channel.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

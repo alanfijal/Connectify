@@ -14,9 +14,10 @@
             <ul>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
                 {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('swipe') }}">Swipe</a></li>
+                    <li><a href="{{ url_for('swipe') }}">Connect</a></li>
                     <li><a href="{{ url_for('chat') }}">Chat</a></li>
-                    <li><a href="{{ url_for('profile_bp.view_profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('channels') }}">Channels</a></li>
+                    <li><a href="{{ url_for('profile_bp.view_profile') }}">My Profile</a></li>
                     <li><a href="{{ url_for('info') }}">Info</a></li>
                     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                 {% else %}

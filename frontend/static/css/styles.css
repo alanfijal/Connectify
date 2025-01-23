@@ -431,27 +431,23 @@ footer p {
 
 /* Individual Message */
 .chat-message {
-    padding: 12px;
-    border-radius: 8px;
-    max-width: 75%;
     position: relative;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    animation: fadeIn 0.3s ease-in-out;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 70%;
 }
 
 .chat-message.sent {
-    background: #007bff;
-    color: #fff;
     margin-left: auto;
-    text-align: right;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    background-color: #007bff;
+    color: white;
 }
 
 .chat-message.received {
-    background: #f1f1f1;
-    color: #333;
     margin-right: auto;
+    background-color: #e9ecef;
+    color: #333;
 }
 
 .message-sender {
@@ -467,6 +463,47 @@ footer p {
     opacity: 0.6;
     display: block;
     margin-top: 5px;
+}
+
+.message-content {
+    position: relative;
+    display: inline-block;
+}
+
+.message-actions {
+    display: none;
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.chat-message:hover .message-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.edit-message-btn,
+.delete-message-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.edit-message-btn:hover,
+.delete-message-btn:hover {
+    opacity: 1;
+}
+
+.edit-message-input {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    width: 100%;
+    min-width: 200px;
 }
 
 /* Message Input */
@@ -569,116 +606,656 @@ footer p {
     }
 }
 
+/*******************************************************
+ * 6.5) CHANNELS PAGE - ENHANCED STYLES (REFINED)
+ *******************************************************/
+
+/* Overall Container */
+.channels-container {
+    display: flex;
+    /* Height minus top navbar and some additional offset */
+    height: calc(100vh - 100px); 
+    margin: 60px auto 20px;
+    max-width: 1200px;
+    background: #fff;
+    border-radius: 8px; /* Reduced from 12px */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Sidebar Styling */
+.channels-sidebar {
+    width: 280px; /* Reduced from 320px */
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    color: #fff;
+    padding: 15px; /* Reduced from 20px */
+    overflow-y: auto;
+    box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.channels-header {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.channels-header h2 {
+    color: #fff;
+    font-size: 1.3rem; /* Slightly smaller */
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+#create-channel-btn {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#create-channel-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+
+/* Channel Item */
+.channel-item {
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.channel-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(3px);
+}
+
+.channel-item.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-left: 4px solid #fff;
+}
+
+.channel-info h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.channel-info p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+
+.member-count {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.join-btn {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 6px;
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.join-btn.join {
+    background: #28a745;
+    color: #fff;
+}
+
+.join-btn.leave {
+    background: #dc3545;
+    color: #fff;
+}
+
+.join-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Main Channel Content */
+.channel-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    padding: 20px; /* Reduced from 30px */
+    overflow: hidden; /* So we can manage scroll within tabs */
+}
+
+.current-channel {
+    margin-bottom: 20px;
+}
+
+.current-channel h1 {
+    color: #2c3e50;
+    font-size: 1.5rem; /* Reduced from 2rem */
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.current-channel p {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* Channel Tabs */
+.channel-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px; 
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.tab-btn:hover {
+    color: #007bff;
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.tab-btn.active {
+    color: #007bff;
+    background: rgba(0, 123, 255, 0.15);
+}
+
+/* Tab Content Wrapper */
+.channel-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* hidden by default, toggled with JS if needed */
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 15px; 
+    flex: 1; /* Make each tab content occupy remaining space */
+    overflow-y: auto; /* Allow scrolling within tab content */
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ---- CHAT TAB ---- */
+
+/* Adjust messages container to fill available space */
+#channel-messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 200px);
+}
+
+/* Individual message styling (example) */
+.message {
+    background: #e9ecef;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.message strong {
+    color: #343a40;
+    margin-right: 5px;
+}
+
+.message p {
+    margin: 4px 0 2px;
+    color: #495057;
+}
+
+.timestamp {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: 5px;
+}
+
+/* Input row pinned to bottom */
+.message-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+#channel-message:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+#send-channel-msg {
+    background: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#send-channel-msg:hover {
+    background: #0056b3;
+}
+
+/* ---- EVENTS TAB ---- */
+#events-tab .events-list {
+    /* Additional spacing or layout if needed */
+    display: grid;
+    gap: 10px;
+}
+
+.event-item {
+    background: #f1f3f5;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.event-item:hover {
+    background: #e9ecef;
+}
+
+.event-content {
+    flex: 1;
+}
+
+.event-content h4 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+    color: #343a40;
+}
+
+.event-content p {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: #495057;
+}
+
+.event-details span {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-right: 15px;
+}
+
+.participants-count {
+    margin-top: 5px;
+}
+
+/* Expandable participants section */
+.event-participants {
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.event-participants h5 {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #343a40;
+}
+
+.participants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.participant {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.participant-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Event Buttons */
+.event-action-btn {
+    margin-left: 10px;
+    align-self: center;
+    padding: 6px 12px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.event-action-btn.join {
+    background: #28a745;
+    color: #fff;
+}
+
+.event-action-btn.leave {
+    background: #dc3545;
+    color: #fff;
+}
+
+.event-action-btn:hover {
+    opacity: 0.9;
+}
+
+/* Events Header */
+.events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; 
+}
+
+.events-header h3 {
+    color: #2c3e50;
+    font-size: 1.1rem; /* Slightly reduced */
+    margin: 0;
+}
+
+#create-event-btn {
+    padding: 8px 14px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+#create-event-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.2);
+}
+
+/* ---- MEMBERS TAB ---- */
+.members-list {
+    display: grid;
+    /* Tweak minmax to fit more members in a row if needed */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 10px;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.member-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.member-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ---- COMMON MODAL STYLING (optional) ---- */
+.modal {
+    position: fixed;
+    z-index: 9999;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* Error / No content messages */
+.error-message,
+.no-messages,
+.no-events,
+.no-members {
+    margin: 20px 0;
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+}
 
 
 
 /*******************************************************
- * 7) PROFILE PAGE
+ * 7) PROFILE PAGE - ELEVATED DESIGN
  *******************************************************/
-.profile-container {
-    padding: 40px;
-    max-width: 800px;
-    margin: 40px auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+ .profile-container {
+    padding: 50px;
+    max-width: 850px;
+    margin: 60px auto;
+    background: linear-gradient(135deg, #ffffff, #f3f3f3);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
 }
 
+/* Profile Header */
 .profile-container h1 {
-    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: #007bff;
     margin-bottom: 30px;
+    text-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 }
 
+/* Profile Image Styling */
 .profile-image {
     text-align: center;
     margin-bottom: 30px;
 }
 
 .profile-image img {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #007bff;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-    transition: transform 0.3s ease;
+    border: 6px solid #007bff;
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    transition: transform 0.4s ease;
 }
 
 .profile-image img:hover {
-    transform: scale(1.05);
+    transform: scale(1.08) rotate(2deg);
 }
 
-.profile-details {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
+/* Profile Details */
 .profile-details p {
-    margin: 15px 0;
-    padding: 10px;
+    font-size: 1.2rem;
+    padding: 12px;
     background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #007bff;
+    border-radius: 10px;
+    border-left: 5px solid #007bff;
+    color: #333;
+    margin: 15px 0;
+    font-weight: 500;
 }
 
-.profile-details strong {
-    color: #007bff;
-    min-width: 120px;
-    display: inline-block;
-}
-
+/* Profile Action Buttons */
 .profile-actions {
-    text-align: center;
-    margin: 30px 0;
+    margin: 40px 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
 }
 
 .profile-actions .btn {
-    display: inline-block;
-    margin: 10px;
-    padding: 12px 24px;
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    font-weight: 600;
     color: #fff;
-    background-color: #007bff;
+    background: linear-gradient(135deg, #007bff, #0056b3);
     border: none;
-    border-radius: 25px;
+    border-radius: 50px;
     text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
 .profile-actions .btn:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #0056b3, #003f88);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-
-/*******************************************************
- * 8) EDIT FORM (PROFILE EDIT)
- *******************************************************/
+/* EDIT FORM STYLES */
 #edit-form {
-    max-width: 600px;
-    margin: 30px auto;
-    padding: 30px;
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 40px;
     background: #f8f9fa;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     animation: slideDown 0.3s ease-out;
 }
 
 #edit-form h2 {
     color: #007bff;
     text-align: center;
-    margin-bottom: 25px;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: 700;
 }
 
+/* Form Fields */
 #edit-form label {
     display: block;
-    margin: 15px 0 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
     color: #495057;
-    font-weight: 500;
+    text-align: left;
 }
 
 #edit-form input[type="text"],
@@ -686,211 +1263,249 @@ footer p {
 #edit-form input[type="number"],
 #edit-form textarea {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: 2px solid #dee2e6;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
+    background: #fff;
 }
 
 #edit-form input:focus,
 #edit-form textarea:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
 #edit-form textarea {
-    min-height: 100px;
+    min-height: 120px;
     resize: vertical;
 }
 
-.neurodivergent-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
-}
-
-#edit-divergence-section {
+/* Radio and Checkbox Styles */
+.radio-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
     margin: 15px 0;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
 }
 
+.radio-group input {
+    accent-color: #007bff;
+}
+
+.checkbox-group input {
+    accent-color: #007bff;
+}
+
+/* Buttons */
 #edit-form button {
     display: inline-block;
-    padding: 12px 24px;
-    margin: 10px;
+    padding: 14px 30px;
     border: none;
-    border-radius: 25px;
-    font-weight: bold;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 #edit-form button[type="submit"] {
     background-color: #28a745;
-    color: #fff;
+    color: white;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
 #edit-form button[type="submit"]:hover {
     background-color: #218838;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
 #cancel-edit-btn {
     background-color: #dc3545;
-    color: #fff;
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
 }
 
 #cancel-edit-btn:hover {
     background-color: #c82333;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
-/* Radio and Checkbox Styles */
-input[type="radio"],
-input[type="checkbox"] {
-    margin-right: 8px;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 30px;
+    }
+
+    .profile-image img {
+        width: 180px;
+        height: 180px;
+    }
+
+    #edit-form {
+        padding: 30px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
 }
 
-.radio-label,
-.checkbox-label {
-    display: inline-block;
-    margin-right: 20px;
-    cursor: pointer;
-}
-
-.radio-group {
-    margin-top: 8px;
-}
-
-.radio-group .form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    margin-right: 150px;
-}
-
-.radio-group .form-check-input {
-    margin-right: 8px;
-    margin-top: 0; 
-}
-
-/* Divergence Section Animation */
-#divergence_section label {
-    color: #495057;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-#divergence_section {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-#divergence_section[style*="display: block"] {
-    animation: fadeIn 0.3s ease;
-}
 
 
 /*******************************************************
  * 9) LOGIN PAGE
  *******************************************************/
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-container h1 {
+ .login-container {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 40px;
+    background: linear-gradient(145deg, #ffffff, #f3f3f3);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Header Styling */
+.login-container h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
     color: #007bff;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
 }
 
-.login-form .form-group {
+/* Flash messages */
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.95rem;
     margin-bottom: 20px;
+    text-align: center;
 }
 
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #28a745;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+}
+
+/* Form Groups */
+.login-form .form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* Input Fields */
 .login-form label {
     display: block;
     margin-bottom: 8px;
-    color: #555;
-    font-weight: 500;
+    color: #333;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 .login-form input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
 }
 
+/* Input focus effect */
 .login-form input:focus {
-    outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    background: #ffffff;
+    outline: none;
 }
 
+/* Login button */
 .login-form button {
     width: 100%;
-    padding: 12px;
-    background-color: #007bff;
+    padding: 14px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
     color: #fff;
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Button hover effect */
 .login-form button:hover {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #0056b3, #004494);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
+/* Subtle hover effect on button */
+.login-form button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.6s ease;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.login-form button:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Sign up link */
 .login-container p {
-    text-align: center;
     margin-top: 20px;
-    color: #666;
+    color: #555;
+    font-size: 1rem;
 }
 
 .login-container a {
     color: #007bff;
+    font-weight: 600;
     text-decoration: none;
-    font-weight: 500;
+    transition: color 0.3s;
 }
 
 .login-container a:hover {
     text-decoration: underline;
+    color: #0056b3;
 }
 
-/* Textarea in login form (if needed) */
-.login-form textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-    resize: vertical;
-    min-height: 100px;
+/* Responsive Design */
+@media (max-width: 576px) {
+    .login-container {
+        max-width: 90%;
+        padding: 30px;
+    }
+
+    .login-form button {
+        font-size: 1rem;
+        padding: 12px;
+    }
 }
 
-.login-form textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
 
 
 /*******************************************************
@@ -945,6 +1560,7 @@ input[type="checkbox"] {
 /* User Details */
 .user-details {
     padding: 20px;
+    padding-top: 10px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 100%);
     position: absolute;
     bottom: 0;
@@ -1019,6 +1635,33 @@ input[type="checkbox"] {
 
 .slide-out {
     animation: slideOut 0.5s ease forwards;
+}
+
+.user-neurotype {
+    margin: 8px 0;
+    font-size: 1rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.user-interests {
+    margin: 8px 0;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.no-users, .error {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.error {
+    color: #dc3545;
 }
 
 
@@ -1631,3 +2274,6 @@ input[type="checkbox"] {
         gap: 10px;
     }
 }
+
+
+

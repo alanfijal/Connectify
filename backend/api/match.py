@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from flask import current_app
@@ -26,7 +25,9 @@ def get_next_user():
         "name": user_data["username"],
         "image_url": user_data.get("profile_image_url", "/static/images/default-profile.png"),
         "bio": user_data.get("bio", "No bio provided"),
-        "interests": user_data.get("interests", [])
+        "interests": user_data.get("interests", []),
+        "is_neurotypical": user_data.get("is_neurotypical", True),
+        "neurodivergences": user_data.get("neurodivergences", [])
     }), 200
 
 @match_bp.route('/swipe/like', methods=['POST'])
