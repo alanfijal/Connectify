@@ -40,7 +40,7 @@ class Retriever:
         prompt_template = functions_prompt.partial(instructions=base_prompt)
         return prompt_template
     
-    #qdrant_tool right now empty because no data is stored in qdrant yet
+    #qdrant_tool right now empty because no data is stored in qdrant for now
     def set_qdrant_tool(self):
         client = QdrantClient("localhost", port=6333)
         embeddings = self.embeddings_model
