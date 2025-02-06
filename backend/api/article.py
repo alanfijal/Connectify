@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify
 from bson import ObjectId
-from datetime import datetime
-from flask_pymongo import PyMongo
 from flask import current_app
 
 article_bp = Blueprint('article', __name__)

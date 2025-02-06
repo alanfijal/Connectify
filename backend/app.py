@@ -1,11 +1,10 @@
-from flask import Flask, render_template, session, current_app
+from flask import Flask, render_template, current_app
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, login_required
 from azure.storage.blob import BlobServiceClient
 from datetime import timedelta
-import uuid
 from bson.objectid import ObjectId
 
 load_dotenv()
@@ -60,7 +59,6 @@ def create_app():
     def nl2br_filter(text):
         if not text:
             return text
-        # Split text into paragraphs and wrap each in <p> tags
         paragraphs = text.split('\n\n')
         return ''.join(f'<p>{p.strip()}</p>' for p in paragraphs if p.strip())
     

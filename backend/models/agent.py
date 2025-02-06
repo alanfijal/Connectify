@@ -6,14 +6,11 @@ from langchain import hub
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.agents import Tool, AgentExecutor, create_openai_tools_agent
 from langchain.globals import set_debug, set_verbose
-from langchain.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from langchain_core.tools import tool 
+from langchain.prompts import ChatPromptTemplate
 from langchain_qdrant import Qdrant
 
 from tavily import TavilyClient
 from qdrant_client import QdrantClient
-from pymongo import MongoClient
-from enum import Enum
 
 load_dotenv()
 

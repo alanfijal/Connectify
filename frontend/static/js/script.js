@@ -100,14 +100,12 @@ async function fetchChatHistory() {
         
         const messageContainer = document.getElementById('messages');
         
-        // Compare with existing messages to avoid unnecessary updates
         const existingMessages = Array.from(messageContainer.children).map(el => ({
             sender_id: el.classList.contains('sent') ? currentUser : currentRecipient,
             text: el.querySelector('.message-text').textContent,
             timestamp: el.querySelector('.message-time').textContent
         }));
 
-        // Only update if there are new messages
         if (JSON.stringify(messages) !== JSON.stringify(existingMessages)) {
             messageContainer.innerHTML = '';
             
@@ -807,7 +805,6 @@ async function loadChannels() {
             });
         });
 
-        // Add click handlers for join/leave buttons
         document.querySelectorAll('.join-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
@@ -824,12 +821,10 @@ async function loadChannels() {
                     });
                     
                     if (response.ok) {
-                        // Update button state immediately
                         e.target.textContent = isLeaving ? 'Join' : 'Leave';
                         e.target.classList.toggle('leave');
                         e.target.classList.toggle('join');
                         
-                        // Refresh channel list to update member counts
                         loadChannels();
                         
                         if (currentChannel === channelId && isLeaving) {
@@ -837,11 +832,9 @@ async function loadChannels() {
                             document.getElementById('current-channel').innerHTML = '<h1>Select a Channel</h1>';
                             document.querySelector('.channel-content').style.display = 'none';
                         } else if (currentChannel === channelId) {
-                            // Refresh current channel view if we're looking at it
                             loadChannel(channelId);
                         }
 
-                        // Show success message
                         const message = isLeaving ? 'Successfully left the channel' : 'Successfully joined the channel';
                         alert(message);
                     } else {
@@ -851,7 +844,6 @@ async function loadChannels() {
                 } catch (error) {
                     console.error('Error joining/leaving channel:', error);
                     alert(error.message || 'Failed to join/leave channel. Please try again.');
-                    // Revert button state on error
                     loadChannels();
                 }
             });
@@ -873,10 +865,10 @@ async function loadChannel(channelId) {
         if (!response.ok) throw new Error('Failed to load channel');
         
         const channel = await response.json();
-        console.log('Channel data:', channel); // Debug log
+        console.log('Channel data:', channel); 
         currentChannel = channelId;
         
-        // Update channel header
+       
         document.getElementById('current-channel').innerHTML = `
             <h1>${channel.name}</h1>
             <p>${channel.description}</p>
@@ -885,7 +877,6 @@ async function loadChannel(channelId) {
 
         
         
-        // Update messages
         const messagesContainer = document.getElementById('channel-messages');
         if (channel.messages && channel.messages.length > 0) {
             messagesContainer.innerHTML = channel.messages.map(msg => `
@@ -900,7 +891,6 @@ async function loadChannel(channelId) {
         }
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
-        // Update members list
         const membersList = document.getElementById('members-list');
         if (channel.members && channel.members.length > 0) {
             membersList.innerHTML = channel.members.map(member => `
@@ -913,16 +903,14 @@ async function loadChannel(channelId) {
             membersList.innerHTML = '<div class="no-members">No members yet</div>';
         }
         
-        // Update events list with join/leave functionality and participant view
         const eventsList = document.getElementById('events-list');
         if (channel.events && channel.events.length > 0) {
             eventsList.innerHTML = channel.events.map(event => {
-                // Debug logs
                 console.log('Event:', event.title);
                 console.log('Event participants:', event.participants);
                 console.log('Current user ID:', currentUserId);
                 
-                // Ensure all IDs are strings and check participation
+
                 const isParticipant = event.participants.some(pid => String(pid) === String(currentUserId));
                 console.log('Is participant:', isParticipant);
 
@@ -950,7 +938,7 @@ async function loadChannel(channelId) {
                 `;
             }).join('');
 
-            // Add event listeners for join/leave buttons
+       
             document.querySelectorAll('.event-action-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -966,7 +954,6 @@ async function loadChannel(channelId) {
                         });
 
                         if (response.ok) {
-                            // Refresh channel to update event participants
                             loadChannel(channelId);
                         } else {
                             const error = await response.json();
@@ -979,7 +966,7 @@ async function loadChannel(channelId) {
                 });
             });
 
-            // Add click listeners for showing/hiding participants
+
             document.querySelectorAll('.event-item').forEach(item => {
                 item.addEventListener('click', async (e) => {
                     if (e.target.classList.contains('event-action-btn')) return;
@@ -1018,7 +1005,7 @@ async function loadChannel(channelId) {
             eventsList.innerHTML = '<div class="no-events">No events scheduled</div>';
         }
 
-        // Show the channel content
+      
         document.querySelector('.channel-content').style.display = 'block';
 
     } catch (error) {
@@ -1034,26 +1021,23 @@ async function loadChannel(channelId) {
     }
 }
 
-// Handle tab switching
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('.channels-container')) {
-        // Load initial channels
         loadChannels();
         
-        // Tab switching
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
-                // Add active class to clicked tab and corresponding content
+               
                 btn.classList.add('active');
                 document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
             });
         });
         
-        // Handle message sending
+     
         const sendButton = document.getElementById('send-channel-msg');
         const messageInput = document.getElementById('channel-message');
         
@@ -1074,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (response.ok) {
                     messageInput.value = '';
-                    loadChannel(currentChannel); // Refresh channel
+                    loadChannel(currentChannel); 
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
@@ -1089,12 +1073,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Handle channel creation
         document.getElementById('create-channel-btn').addEventListener('click', () => {
             showCreateChannelModal();
         });
         
-        // Handle event creation
+        
         document.getElementById('create-event-btn').addEventListener('click', () => {
             if (!currentChannel) {
                 alert('Please select a channel first');
@@ -1151,9 +1134,9 @@ function showCreateChannelModal() {
 
             if (response.ok) {
                 modal.remove();
-                loadChannels(); // Refresh channels list
+                loadChannels();
                 const data = await response.json();
-                loadChannel(data.id); // Load the newly created channel
+                loadChannel(data.id); 
             } else {
                 const error = await response.json();
                 alert(error.error || 'Failed to create channel');
@@ -1206,7 +1189,7 @@ function showCreateEventModal() {
     const form = document.getElementById('create-event-form');
     const cancelBtn = document.getElementById('cancel-event');
 
-    // Set minimum date to today
+   
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('event-date').min = today;
 
@@ -1234,7 +1217,7 @@ function showCreateEventModal() {
 
             if (response.ok) {
                 modal.remove();
-                loadChannel(currentChannel); // Refresh channel to show new event
+                loadChannel(currentChannel); 
             } else {
                 const error = await response.json();
                 alert(error.error || 'Failed to create event');
@@ -1250,10 +1233,9 @@ function showCreateEventModal() {
     });
 }
 
-// Add this at the start of your script
 let currentUserId = null;
 
-// Add this function to get the current user's ID
+
 async function getCurrentUserId() {
     try {
         const response = await fetch('/api/profile');
@@ -1267,8 +1249,20 @@ async function getCurrentUserId() {
     }
 }
 
-// Call this when the page loads
+
 document.addEventListener('DOMContentLoaded', async () => {
     await getCurrentUserId();
-    // ... rest of your initialization code ...
 });
+
+// async function editMessage(){
+//     try{
+//         const response = await fetch(/api/message/message<id>);
+//         if (response.ok){
+//             console.log("Message recieved", response)
+//         }
+
+//     }
+//     catch (error){
+//         console.error("Error editing the message", error);
+//     }
+// }

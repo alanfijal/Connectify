@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app, render_template
 from flask_login import login_required, current_user
-from models.user import User
 
 profile_bp = Blueprint('profile_bp', __name__)
 

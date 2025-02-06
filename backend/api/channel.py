@@ -77,16 +77,13 @@ def join_channel(channel_id):
 @login_required
 def leave_channel(channel_id):
     try:
-        # Find the channel
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             return jsonify({'error': 'Channel not found'}), 404
 
-        # Check if user is a member
         if current_user._id not in channel.get('members', []):
             return jsonify({'error': 'Not a member of this channel'}), 400
 
-        # Remove user from channel members
         result = current_app.mongo.db.channels.update_one(
             {'channel_id': channel_id},
             {'$pull': {'members': current_user._id}}
@@ -105,12 +102,10 @@ def leave_channel(channel_id):
 @login_required
 def create_event(channel_id):
     try:
-        # Verify the channel exists
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             return jsonify({'error': 'Channel not found'}), 404
 
-        # Verify user is a member of the channel
         if current_user._id not in channel.get('members', []):
             return jsonify({'error': 'Must be a channel member to create events'}), 403
 
@@ -119,17 +114,17 @@ def create_event(channel_id):
             return jsonify({'error': 'Missing required event fields'}), 400
             
         event = {
-            '_id': ObjectId(),  # Generate new ObjectId for the event
+            '_id': ObjectId(),  
             'title': data['title'],
             'description': data['description'],
             'date': data['date'],
             'time': data['time'],
             'created_by': current_user._id,
             'created_at': datetime.utcnow(),
-            'participants': [current_user._id]  # Creator automatically participates
+            'participants': [current_user._id]  
         }
         
-        # Add event to channel
+  
         result = current_app.mongo.db.channels.update_one(
             {'channel_id': channel_id},
             {'$push': {'events': event}}
@@ -192,7 +187,6 @@ def get_event(channel_id, event_id):
 @login_required
 def join_event(channel_id, event_id):
     try:
-        # Verify channel and user membership
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             return jsonify({'error': 'Channel not found'}), 404
@@ -200,7 +194,6 @@ def join_event(channel_id, event_id):
         if current_user._id not in channel.get('members', []):
             return jsonify({'error': 'Must be a channel member to join events'}), 403
 
-        # Find the specific event
         event = None
         for e in channel.get('events', []):
             if str(e['_id']) == event_id:
@@ -210,11 +203,9 @@ def join_event(channel_id, event_id):
         if not event:
             return jsonify({'error': 'Event not found'}), 404
 
-        # Check if user is already a participant
         if current_user._id in event.get('participants', []):
             return jsonify({'error': 'Already joined this event'}), 400
 
-        # Add user to event participants
         result = current_app.mongo.db.channels.update_one(
             {
                 'channel_id': channel_id,
@@ -242,14 +233,12 @@ def leave_event(channel_id, event_id):
     try:
         print(f"Leave event request - Channel ID: {channel_id}, Event ID: {event_id}")
         print(f"Current user ID: {current_user._id}")
-        
-        # Verify channel exists
+
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             print("Channel not found")
             return jsonify({'error': 'Channel not found'}), 404
 
-        # Find the specific event
         event = None
         for e in channel.get('events', []):
             if str(e['_id']) == event_id:
@@ -264,7 +253,6 @@ def leave_event(channel_id, event_id):
         print(f"Current user ID type: {type(current_user._id)}")
         print(f"Participant IDs types: {[type(pid) for pid in event.get('participants', [])]}")
 
-        # Check if user is a participant
         is_participant = any(str(pid) == str(current_user._id) for pid in event.get('participants', []))
         print(f"Is participant: {is_participant}")
 
@@ -272,7 +260,6 @@ def leave_event(channel_id, event_id):
             print("User is not a participant")
             return jsonify({'error': 'Not a participant in this event'}), 400
 
-        # Remove user from event participants
         result = current_app.mongo.db.channels.update_one(
             {
                 'channel_id': channel_id,
@@ -301,7 +288,6 @@ def leave_event(channel_id, event_id):
 @login_required
 def get_event_participants(channel_id, event_id):
     try:
-        # Find channel and event
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             return jsonify({'error': 'Channel not found'}), 404
@@ -315,7 +301,6 @@ def get_event_participants(channel_id, event_id):
         if not event:
             return jsonify({'error': 'Event not found'}), 404
 
-        # Get participant details
         participants = []
         for participant_id in event.get('participants', []):
             user = current_app.mongo.db.users.find_one({'_id': participant_id})
@@ -346,7 +331,6 @@ def get_channel(channel_id):
         if current_user._id not in channel.get('members', []):
             return jsonify({'error': 'You are not a member of this channel'}), 403
         
-        # Get member details
         member_ids = channel.get('members', [])
         members = []
         for member_id in member_ids:
@@ -358,7 +342,6 @@ def get_channel(channel_id):
                     'profile_image': user.get('profile_image_url', '/static/images/default-profile.png')
                 })
 
-        # Get messages for this channel without sorting
         messages_cursor = current_app.mongo.db.channel_messages.find(
             {'channel_id': channel_id}
         )
@@ -366,7 +349,6 @@ def get_channel(channel_id):
         messages = []
         if messages_cursor:
             messages_list = list(messages_cursor)
-            # Sort in memory, handling both datetime and string timestamps
             messages_list.sort(key=lambda x: x.get('timestamp', datetime.min) if isinstance(x.get('timestamp'), datetime) else datetime.min)
             
             for msg in messages_list:
@@ -374,7 +356,6 @@ def get_channel(channel_id):
                     sender = current_app.mongo.db.users.find_one({"_id": msg.get("sender_id")})
                     sender_name = sender.get("username") if sender else "Unknown"
                     
-                    # Convert datetime to string for JSON serialization
                     timestamp = msg.get('timestamp')
                     if isinstance(timestamp, datetime):
                         timestamp = timestamp.isoformat()
@@ -390,7 +371,6 @@ def get_channel(channel_id):
                     print(f"Error processing message: {msg_error}")
                     continue
 
-        # Process events - Convert ObjectId to string
         events = []
         for event in channel.get('events', []):
             try:
@@ -402,7 +382,7 @@ def get_channel(channel_id):
                     'time': event['time'],
                     'created_by': str(event['created_by']),
                     'created_at': event['created_at'].isoformat() if isinstance(event['created_at'], datetime) else event['created_at'],
-                    'participants': [str(pid) for pid in event.get('participants', [])]  # Convert all participant IDs to strings
+                    'participants': [str(pid) for pid in event.get('participants', [])]  
                 })
             except Exception as event_error:
                 print(f"Error processing event: {event_error}")
@@ -416,12 +396,12 @@ def get_channel(channel_id):
             'created_at': channel.get('created_at', ''),
             'created_by': str(channel.get('created_by', '')),
             'members': members,
-            'events': events,  # Use the processed events list
+            'events': events, 
             'messages': messages
         }
 
-        print("Current user ID:", str(current_user._id))  # Debug log
-        print("Response events:", events)  # Debug log
+        print("Current user ID:", str(current_user._id))  
+        print("Response events:", events) 
 
         return jsonify(response_data), 200
             
@@ -441,7 +421,6 @@ def send_channel_message(channel_id):
         if not message_text:
             return jsonify({"error": "Message text is required"}), 400
 
-        # Verify channel exists and user is a member
         channel = current_app.mongo.db.channels.find_one({'channel_id': channel_id})
         if not channel:
             return jsonify({"error": "Channel not found"}), 404
@@ -458,7 +437,6 @@ def send_channel_message(channel_id):
         
         result = current_app.mongo.db.channel_messages.insert_one(new_msg)
         
-        # Get sender info for response
         sender = current_app.mongo.db.users.find_one({"_id": current_user._id})
         sender_name = sender.get("username") if sender else "Unknown"
         
@@ -486,11 +464,10 @@ def update_channel_message(channel_id, message_id):
         if not new_text:
             return jsonify({"error": "New message text is required"}), 400
             
-        # Find message and verify ownership
         message = current_app.mongo.db.channel_messages.find_one({
             "_id": ObjectId(message_id),
             "channel_id": channel_id,
-            "sender_id": current_user._id  # Ensure user owns the message
+            "sender_id": current_user._id  
         })
         
         if not message:
@@ -519,11 +496,10 @@ def update_channel_message(channel_id, message_id):
 @login_required
 def delete_channel_message(channel_id, message_id):
     try:
-        # Find message and verify ownership
         message = current_app.mongo.db.channel_messages.find_one({
             "_id": ObjectId(message_id),
             "channel_id": channel_id,
-            "sender_id": current_user._id  # Ensure user owns the message
+            "sender_id": current_user._id  
         })
         
         if not message:
